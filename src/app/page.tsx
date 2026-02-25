@@ -20,8 +20,7 @@ export default function Home() {
         width: '1600px',
         height: '900px',
         position: 'relative',
-        overflow: 'hidden',
-        cursor: 'default'
+        overflow: 'hidden'
       }}>
         {/* Эллипс с радиальным градиентом по центру */}
         <div style={{
@@ -59,7 +58,8 @@ export default function Home() {
           backgroundImage: 'url(/gromichalichmonstr4.png)',
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center'
+          backgroundPosition: 'center',
+          cursor: 'pointer'
         }} />
 
         {/* Текст описания */}
@@ -83,7 +83,12 @@ export default function Home() {
 
         {/* Кнопка войти в игру */}
         <div 
-          onClick={() => router.push('/game')}
+          onClick={() => {
+            localStorage.removeItem('correctAnswers')
+            localStorage.removeItem('monsterIndex')
+            localStorage.removeItem('answeredMonsters')
+            router.push('/game')
+          }}
           className="enter-button"
           style={{
           position: 'absolute',
@@ -111,10 +116,6 @@ export default function Home() {
         </div>
 
         <style jsx global>{`
-          * {
-            -webkit-user-drag: none;
-            user-drag: none;
-          }
           .enter-button:hover {
             transform: translateY(-3px) scale(1.05);
           }
@@ -144,14 +145,15 @@ export default function Home() {
           justifyContent: 'space-between',
           alignItems: 'flex-start'
         }}>
-          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/skripun.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease' }} />
-          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/plesenmonstr2.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease' }} />
-          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/monstr3kapalich.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease' }} />
-          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/tresihnmonstr5.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease' }} />
-          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/energomormonst6.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease' }} />
-          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/zazormonstr8.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease' }} />
-          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/rijikmonstr7.8.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease' }} />
+          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/skripun.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease', cursor: 'pointer' }} />
+          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/plesenmonstr2.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease', cursor: 'pointer' }} />
+          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/monstr3kapalich.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease', cursor: 'pointer' }} />
+          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/tresihnmonstr5.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease', cursor: 'pointer' }} />
+          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/energomormonst6.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease', cursor: 'pointer' }} />
+          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/zazormonstr8.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease', cursor: 'pointer' }} />
+          <div className="monster-icon" style={{ width: '77px', height: '77px', backgroundImage: 'url(/rijikmonstr7.8.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', transition: 'transform 0.3s ease', cursor: 'pointer' }} />
         </div>
+
       </div>
     </div>
   )

@@ -159,7 +159,7 @@ function GameContent() {
   }, [defeatedMonster])
 
   return (
-    <div style={{ minHeight: '100vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(225, 98, 26, 1)' }}>
+    <div style={{ minHeight: '100vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(225, 98, 26, 1)', userSelect: 'none', WebkitUserSelect: 'none' }}>
       <div style={{ width: '1600px', height: '900px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', left: '130px', top: '0px', width: '352px', height: '132px', backgroundImage: 'url(/logo.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }} />
 
@@ -369,8 +369,11 @@ function GameContent() {
                 них есть секретное досье.
               </div>
             </div>
-            <div 
-              onClick={() => router.push('/monster')}
+            <div
+              onClick={() => {
+                localStorage.setItem('monsterTimer', seconds.toString())
+                router.push('/monster')
+              }}
               style={{
                 position: 'absolute',
                 left: '1180px',

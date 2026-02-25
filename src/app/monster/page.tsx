@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 // Данные монстров
 const monsters = [
@@ -117,7 +118,7 @@ const monsters = [
     danger: 5,
     image: '/tresihnmonstr5.png',
     description: 'Появляется на стенах и потолке, особенно в новостройках или после спешного ремонта. Любит слабые места: стыки гипсокартона, углы дверных проемов и толстые слои штукатурки, которые плохо просохли. Портит внешний вид и навевает тоску.',
-    problem: 'Усадка дома, некачественная штукатурка, косметические дефекты',
+    problem: 'Усадка дома, плохая штукатурка',
     weaknesses: [
       { title: 'Армирующая сетка:', desc: 'Вмурованная в шпаклевку сетка не дает трещине ползти дальше.' },
       { title: 'Эластичная шпаклевка:', desc: 'Слегка тянется и не лопается при микродвижениях стен.' },
@@ -143,7 +144,7 @@ const monsters = [
     danger: 10,
     image: '/energomormonst6.png',
     description: 'Прячется в старых розетках, скрутках проводов и слабых автоматах в щитке. Любит, когда включают много мощных приборов сразу (чайник + микроволновка + обогреватель). Выбивает пробки, плавит изоляцию и может устроить пожар.',
-    problem: 'Короткое замыкание, скачки напряжения, перегрузка сети',
+    problem: 'Короткое замыкание, скачки напряжения',
     weaknesses: [
       { title: 'Автомат. выключатели:', desc: 'Мгновенно отключают линию при перегрузке.' },
       { title: 'УЗО:', desc: 'Ловит даже микро-утечки тока.' },
@@ -221,7 +222,7 @@ const monsters = [
     danger: 7,
     image: '/krivmonstr7.png',
     description: 'Вселяется в руки мастеров (или самих жильцов), когда те спешат или ленятся. В результате стены — волной, плитка торчит, плинтуса не сходятся в углах, а уровень можно сразу выкинуть. Этот монстр маскирует свою работу кучей раствора и "глаза и так не заметят".',
-    problem: 'Криво положенная плитка, неровные стены, некачественная работа',
+    problem: 'Криво положенная плитка, неровные стены',
     weaknesses: [
       { title: 'Лазерный уровень:', desc: 'Луч правды не даст ему скрыть кривизну.' },
       { title: 'Правило и отвес:', desc: 'Инструменты, которые показывают все неровности.' },
@@ -267,21 +268,99 @@ const monsters = [
 ]
 
 export default function MonsterPage() {
+  const router = useRouter()
   const [monsterIndex, setMonsterIndex] = useState(0)
   const [animatedPercentage, setAnimatedPercentage] = useState(0)
   const [animatedDanger, setAnimatedDanger] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [seconds, setSeconds] = useState(0)
+  const [correctAnswers, setCorrectAnswers] = useState(0)
+  const [answeredMonsters, setAnsweredMonsters] = useState<{ [key: number]: string }>({})
+  const [isHydrated, setIsHydrated] = useState(false)
   
   const monster = monsters[monsterIndex]
   const total = 10
   const percentage = (monster.rarity / total) * 100
   const dangerPercentage = (monster.danger / total) * 100
 
+  // Проверка - все ли 10 вопросов отвечены
   useEffect(() => {
+    if (isHydrated && Object.keys(answeredMonsters).length === 10) {
+      // Сохраняем финальное время
+      localStorage.setItem('monsterTimer', seconds.toString())
+      // Переходим на страницу результатов
+      router.push('/result')
+    }
+  }, [answeredMonsters, isHydrated, seconds, router])
+
+  // Загрузка из localStorage после гидратации
+  useEffect(() => {
+    const savedTime = localStorage.getItem('monsterTimer')
+    const savedAnswers = localStorage.getItem('correctAnswers')
+    const savedIndex = localStorage.getItem('monsterIndex')
+    const savedAnswered = localStorage.getItem('answeredMonsters')
+    
+    if (savedTime) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSeconds(parseInt(savedTime, 10))
+    }
+    if (savedAnswers) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCorrectAnswers(parseInt(savedAnswers, 10))
+    }
+    if (savedIndex) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMonsterIndex(parseInt(savedIndex, 10))
+    }
+    if (savedAnswered) {
+      const parsed = JSON.parse(savedAnswered)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAnsweredMonsters(parsed)
+    }
+    setIsHydrated(true)
+  }, [])
+
+  // Установка selectedAnswer при смене монстра
+  useEffect(() => {
+    if (!isHydrated) return
+    const savedAnswer = answeredMonsters[monsterIndex]
+    if (savedAnswer) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedAnswer(savedAnswer)
+    } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedAnswer(null)
+    }
+  }, [monsterIndex, isHydrated, answeredMonsters])
+
+  // Таймер - увеличение секунд
+  useEffect(() => {
+    if (!isHydrated) return
+    const interval = setInterval(() => {
+      setSeconds((prev) => prev + 1)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [isHydrated])
+
+  // Сохранение времени периодически
+  useEffect(() => {
+    if (!isHydrated) return
+    localStorage.setItem('monsterTimer', seconds.toString())
+  }, [isHydrated, seconds])
+
+  const formatTime = (totalSeconds: number) => {
+    const hours = Math.floor(totalSeconds / 3600)
+    const mins = Math.floor((totalSeconds % 3600) / 60)
+    const secs = totalSeconds % 60
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAnimatedPercentage(0)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAnimatedDanger(0)
-    setSelectedAnswer(null)
     const timer = setTimeout(() => {
       setAnimatedPercentage(percentage)
     }, 300)
@@ -298,7 +377,9 @@ export default function MonsterPage() {
     if (monsterIndex > 0 && !isTransitioning) {
       setIsTransitioning(true)
       setTimeout(() => {
-        setMonsterIndex(monsterIndex - 1)
+        const newIndex = monsterIndex - 1
+        setMonsterIndex(newIndex)
+        localStorage.setItem('monsterIndex', newIndex.toString())
         setTimeout(() => setIsTransitioning(false), 50)
       }, 300)
     }
@@ -308,14 +389,25 @@ export default function MonsterPage() {
     if (monsterIndex < monsters.length - 1 && !isTransitioning) {
       setIsTransitioning(true)
       setTimeout(() => {
-        setMonsterIndex(monsterIndex + 1)
+        const newIndex = monsterIndex + 1
+        setMonsterIndex(newIndex)
+        localStorage.setItem('monsterIndex', newIndex.toString())
         setTimeout(() => setIsTransitioning(false), 50)
       }, 300)
     }
   }
 
-  const handleAnswerSelect = (answer: string) => {
+  const handleAnswerSelect = (answer: string, isCorrect: boolean) => {
+    if (selectedAnswer) return // Уже ответили
     setSelectedAnswer(answer)
+    const newAnswered = { ...answeredMonsters, [monsterIndex]: answer }
+    setAnsweredMonsters(newAnswered)
+    localStorage.setItem('answeredMonsters', JSON.stringify(newAnswered))
+    if (isCorrect) {
+      const newCount = correctAnswers + 1
+      setCorrectAnswers(newCount)
+      localStorage.setItem('correctAnswers', newCount.toString())
+    }
   }
 
   return (
@@ -352,7 +444,7 @@ export default function MonsterPage() {
             left: '24px',
             top: '20px',
             width: '402px',
-            height: '240px',
+            height: '180px',
             borderRadius: '20px',
             background: 'rgba(255, 153, 58, 1)',
             boxShadow: '0px 10px 30px rgba(255, 153, 58, 0.4)',
@@ -364,8 +456,8 @@ export default function MonsterPage() {
           }}>
             {/* Блок редкости - дуга с градиентом */}
             <div style={{
-              width: '154px',
-              height: '154px',
+              width: '130px',
+              height: '130px',
               fontFamily: 'Involve, sans-serif',
               display: 'flex',
               flexDirection: 'column',
@@ -373,7 +465,7 @@ export default function MonsterPage() {
               justifyContent: 'center',
               position: 'relative'
             }}>
-              <svg width="154" height="154" viewBox="0 0 154 154" style={{ position: 'absolute', transform: 'rotate(90deg)' }}>
+              <svg width="130" height="130" viewBox="0 0 154 154" style={{ position: 'absolute', transform: 'rotate(90deg)' }}>
                 <defs>
                   <linearGradient id="arcGradient" x1="100%" y1="0%" x2="0%" y2="0%">
                     <stop offset="0%" stopColor="rgba(255, 255, 51, 1)" />
@@ -394,10 +486,10 @@ export default function MonsterPage() {
                 position: 'relative',
                 zIndex: 1,
                 textAlign: 'center',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: '400',
                 color: 'rgba(255, 255, 255, 1)',
-                marginTop: '20px'
+                marginTop: '15px'
               }}>
                 Редкость
               </div>
@@ -405,11 +497,11 @@ export default function MonsterPage() {
                 position: 'relative',
                 zIndex: 1,
                 textAlign: 'center',
-                fontSize: '40px',
+                fontSize: '32px',
                 fontWeight: '700',
                 letterSpacing: '-0.05em',
                 color: 'rgba(255, 255, 255, 1)',
-                marginTop: '-8px'
+                marginTop: '-5px'
               }}>
                 {monster.rarity}/{total}
               </div>
@@ -417,8 +509,8 @@ export default function MonsterPage() {
 
             {/* Блок опасности - дуга с градиентом */}
             <div style={{
-              width: '154px',
-              height: '154px',
+              width: '130px',
+              height: '130px',
               fontFamily: 'Involve, sans-serif',
               display: 'flex',
               flexDirection: 'column',
@@ -426,7 +518,7 @@ export default function MonsterPage() {
               justifyContent: 'center',
               position: 'relative'
             }}>
-              <svg width="154" height="154" viewBox="0 0 154 154" style={{ position: 'absolute', transform: 'rotate(90deg)' }}>
+              <svg width="130" height="130" viewBox="0 0 154 154" style={{ position: 'absolute', transform: 'rotate(90deg)' }}>
                 <defs>
                   <linearGradient id="dangerGradient" x1="100%" y1="0%" x2="0%" y2="0%">
                     <stop offset="0%" stopColor="rgba(255, 0, 0, 1)" />
@@ -447,10 +539,10 @@ export default function MonsterPage() {
                 position: 'relative',
                 zIndex: 1,
                 textAlign: 'center',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: '400',
                 color: 'rgba(255, 255, 255, 1)',
-                marginTop: '20px'
+                marginTop: '15px'
               }}>
                 Опасность
               </div>
@@ -458,11 +550,11 @@ export default function MonsterPage() {
                 position: 'relative',
                 zIndex: 1,
                 textAlign: 'center',
-                fontSize: '40px',
+                fontSize: '32px',
                 fontWeight: '700',
                 letterSpacing: '-0.05em',
                 color: 'rgba(255, 255, 255, 1)',
-                marginTop: '-8px'
+                marginTop: '-5px'
               }}>
                 {monster.danger}/{total}
               </div>
@@ -473,17 +565,17 @@ export default function MonsterPage() {
           <div style={{
             position: 'absolute',
             left: '24px',
-            top: '290px',
+            top: '220px',
             width: '158px',
             height: '40px',
             opacity: 1,
             fontFamily: 'Involve, sans-serif'
           }}>
             <span style={{
-              fontSize: '30px',
+              fontSize: '20px',
               fontWeight: '700',
               letterSpacing: '0px',
-              lineHeight: '43.44px',
+              lineHeight: '28px',
               color: 'rgba(64, 64, 64, 1)'
             }}>
               Описание
@@ -494,55 +586,172 @@ export default function MonsterPage() {
           <div className={`content-fade ${isTransitioning ? 'fade-out' : 'fade-in'}`} style={{
             position: 'absolute',
             left: '24px',
-            top: '335px',
+            top: '255px',
             width: '400px',
             height: '175px',
             opacity: 1,
             fontFamily: 'Involve, sans-serif',
             fontWeight: 400,
-            fontSize: '19px',
-            lineHeight: '27.51px',
-            color: 'rgba(64, 64, 64, 1)'
+            fontSize: '14px',
+            lineHeight: '20px',
+            color: 'rgba(64, 64, 64, 1)',
+            textAlign: 'justify'
           }}>
               {monster.description}
           </div>
 
-          {/* Заголовок Проблема */}
+          {/* Блок Проблема */}
           <div style={{
             position: 'absolute',
             left: '24px',
-            top: '560px',
-            width: '158px',
-            height: '40px',
-            opacity: 1,
-            fontFamily: 'Involve, sans-serif'
+            top: '380px',
+            width: '402px',
           }}>
-            <span style={{
-              fontSize: '30px',
+            <div style={{
+              fontSize: '20px',
               fontWeight: '700',
-              letterSpacing: '0px',
-              lineHeight: '43.44px',
-              color: 'rgba(64, 64, 64, 1)'
+              color: 'rgba(64, 64, 64, 1)',
+              fontFamily: 'Involve, sans-serif',
+              marginBottom: '2px',
+              lineHeight: '28px'
             }}>
               Проблема
-            </span>
+            </div>
+            <div style={{
+              fontSize: '14px',
+              fontWeight: '400',
+              color: 'rgba(100, 100, 100, 1)',
+              fontFamily: 'Involve, sans-serif',
+              lineHeight: '20px',
+              textAlign: 'justify'
+            }}>
+              {monster.problem}
+            </div>
           </div>
 
-          {/* Подзаголовок */}
-          <div className={`content-fade ${isTransitioning ? 'fade-out' : 'fade-in'}`} style={{
+          {/* Блок Слабые стороны */}
+          <div style={{
             position: 'absolute',
             left: '24px',
-            top: '605px',
-            width: '400px',
-            height: '28px',
-            opacity: 1,
-            fontFamily: 'Involve, sans-serif',
-            fontWeight: 400,
-            fontSize: '19px',
-            lineHeight: '27.51px',
-            color: 'rgba(64, 64, 64, 1)'
+            top: '455px',
+            width: '402px',
           }}>
-              {monster.problem}
+            {/* Оранжевый заголовок */}
+            <div style={{
+              width: '402px',
+              height: '60px',
+              borderRadius: '14px',
+              background: 'rgba(255, 153, 58, 1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '15px'
+            }}>
+              <span style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: 'rgba(255, 255, 255, 1)',
+                fontFamily: 'Involve, sans-serif'
+              }}>
+                Слабые стороны
+              </span>
+            </div>
+
+            {/* Первая слабость */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '18px',
+                background: 'rgba(254, 146, 72, 1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: '12px',
+                flexShrink: 0
+              }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundImage: 'url(/icongor.png)',
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center'
+                }} />
+              </div>
+              <div>
+                <div style={{ fontSize: '20px', fontWeight: '700', color: 'rgba(64, 64, 64, 1)', fontFamily: 'Involve, sans-serif' }}>
+                  {monster.weaknesses[0].title}
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: '400', color: 'rgba(100, 100, 100, 1)', fontFamily: 'Involve, sans-serif', lineHeight: '20px' }}>
+                  {monster.weaknesses[0].desc}
+                </div>
+              </div>
+            </div>
+
+            {/* Вторая слабость */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '18px',
+                background: 'rgba(254, 146, 72, 1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: '12px',
+                flexShrink: 0
+              }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundImage: 'url(/icongor.png)',
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center'
+                }} />
+              </div>
+              <div>
+                <div style={{ fontSize: '20px', fontWeight: '700', color: 'rgba(64, 64, 64, 1)', fontFamily: 'Involve, sans-serif' }}>
+                  {monster.weaknesses[1].title}
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: '400', color: 'rgba(100, 100, 100, 1)', fontFamily: 'Involve, sans-serif', lineHeight: '20px' }}>
+                  {monster.weaknesses[1].desc}
+                </div>
+              </div>
+            </div>
+
+            {/* Третья слабость */}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '18px',
+                background: 'rgba(254, 146, 72, 1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: '12px',
+                flexShrink: 0
+              }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundImage: 'url(/icongor.png)',
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center'
+                }} />
+              </div>
+              <div>
+                <div style={{ fontSize: '20px', fontWeight: '700', color: 'rgba(64, 64, 64, 1)', fontFamily: 'Involve, sans-serif' }}>
+                  {monster.weaknesses[2].title}
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: '400', color: 'rgba(100, 100, 100, 1)', fontFamily: 'Involve, sans-serif', lineHeight: '20px' }}>
+                  {monster.weaknesses[2].desc}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -651,217 +860,20 @@ export default function MonsterPage() {
           </div>
         </div>
 
-        {/* Белый блок справа сверху */}
-        <div style={{
-          position: 'absolute',
-          left: '1070px',
-          top: '44px',
-          width: '449px',
-          height: '400px',
-          borderRadius: '20px',
-          background: 'rgba(255, 255, 255, 1)'
-        }}>
-          {/* Оранжевый блок */}
-          <div className="hover-orange-block" style={{
-            position: 'absolute',
-            left: '24px',
-            top: '20px',
-            width: '401px',
-            height: '89px',
-            borderRadius: '17px',
-            background: 'rgba(255, 153, 58, 1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-          }}>
-            <span style={{
-              fontSize: '30px',
-              fontWeight: '700',
-              color: 'rgba(255, 255, 255, 1)',
-              fontFamily: 'Involve, sans-serif'
-            }}>
-              Слабые стороны
-            </span>
-          </div>
-
-          {/* Эллипс под оранжевым блоком */}
-          <div style={{
-            position: 'absolute',
-            left: '24px',
-            top: '145px',
-            width: '50px',
-            height: '50px',
-            borderRadius: '25px',
-            background: 'rgba(254, 146, 72, 1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <div style={{
-              width: '30px',
-              height: '30px',
-              backgroundImage: 'url(/icongor.png)',
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center'
-            }}>
-            </div>
-          </div>
-
-          {/* Текст справа от эллипса */}
-          <div className={`content-fade ${isTransitioning ? 'fade-out' : 'fade-in'}`} style={{
-            position: 'absolute',
-            left: '90px',
-            top: '145px',
-            height: '50px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            fontFamily: 'Involve, sans-serif'
-          }}>
-            <div style={{
-              fontSize: '25px',
-              fontWeight: '700',
-              color: 'rgba(64, 64, 64, 1)'
-            }}>
-              {monster.weaknesses[0].title}
-            </div>
-            <div style={{
-              fontSize: '15px',
-              fontWeight: '500',
-              letterSpacing: '-0.02em',
-              color: 'rgba(163, 174, 208, 1)',
-              maxWidth: '320px',
-              lineHeight: '1.4'
-            }}>
-              {monster.weaknesses[0].desc}
-            </div>
-          </div>
-
-          {/* Второй эллипс */}
-          <div style={{
-            position: 'absolute',
-            left: '22px',
-            top: '230px',
-            width: '50px',
-            height: '50px',
-            borderRadius: '25px',
-            background: 'rgba(254, 146, 72, 1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <div style={{
-              width: '30px',
-              height: '30px',
-              backgroundImage: 'url(/icongor.png)',
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center'
-            }}>
-            </div>
-          </div>
-
-          {/* Текст справа от второго эллипса */}
-          <div className={`content-fade ${isTransitioning ? 'fade-out' : 'fade-in'}`} style={{
-            position: 'absolute',
-            left: '90px',
-            top: '230px',
-            height: '50px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            fontFamily: 'Involve, sans-serif'
-          }}>
-            <div style={{
-              fontSize: '25px',
-              fontWeight: '700',
-              color: 'rgba(64, 64, 64, 1)'
-            }}>
-              {monster.weaknesses[1].title}
-            </div>
-            <div style={{
-              fontSize: '15px',
-              fontWeight: '500',
-              letterSpacing: '-0.02em',
-              color: 'rgba(163, 174, 208, 1)',
-              maxWidth: '320px',
-              lineHeight: '1.4'
-            }}>
-              {monster.weaknesses[1].desc}
-            </div>
-          </div>
-
-          {/* Третий эллипс */}
-          <div style={{
-            position: 'absolute',
-            left: '22px',
-            top: '320px',
-            width: '50px',
-            height: '50px',
-            borderRadius: '25px',
-            background: 'rgba(254, 146, 72, 1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <div style={{
-              width: '30px',
-              height: '30px',
-              backgroundImage: 'url(/icongor.png)',
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center'
-            }}>
-            </div>
-          </div>
-
-          {/* Текст справа от третьего эллипса */}
-          <div className={`content-fade ${isTransitioning ? 'fade-out' : 'fade-in'}`} style={{
-            position: 'absolute',
-            left: '90px',
-            top: '320px',
-            height: '50px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            fontFamily: 'Involve, sans-serif'
-          }}>
-            <div style={{
-              fontSize: '25px',
-              fontWeight: '700',
-              color: 'rgba(64, 64, 64, 1)'
-            }}>
-              {monster.weaknesses[2].title}
-            </div>
-            <div style={{
-              fontSize: '15px',
-              fontWeight: '500',
-              letterSpacing: '-0.02em',
-              color: 'rgba(163, 174, 208, 1)',
-              maxWidth: '320px',
-              lineHeight: '1.4'
-            }}>
-              {monster.weaknesses[2].desc}
-            </div>
-          </div>
-        </div>
-
         {/* Вопрос квиза */}
         <div className={`content-fade ${isTransitioning ? 'fade-out' : 'fade-in'}`} style={{
           position: 'absolute',
           left: '1070px',
-          top: '464px',
+          top: '44px',
           width: '449px',
           height: '105px',
           opacity: 1,
           fontFamily: 'Involve, sans-serif',
-          fontSize: '26px',
+          fontSize: '20px',
           fontWeight: '700',
-          letterSpacing: '-0.02em',
+          letterSpacing: '0.02em',
           color: 'rgba(255, 255, 255, 1)',
-          lineHeight: '1.2',
+          lineHeight: '1.3',
           display: 'flex',
           alignItems: 'center'
         }}>
@@ -875,12 +887,12 @@ export default function MonsterPage() {
           return (
             <div key={index}>
               {/* Тумблер */}
-              <div
-                onClick={() => handleAnswerSelect(answerKey)}
+              <div 
+                onClick={() => handleAnswerSelect(answerKey, isCorrect)}
                 style={{
                   position: 'absolute',
                   left: '1070px',
-                  top: `${595 + index * 52}px`,
+                  top: `${150 + index * 60}px`,
                   width: '56px',
                   height: '30.71px',
                   borderRadius: '25px',
@@ -911,12 +923,13 @@ export default function MonsterPage() {
               <div className={`content-fade ${isTransitioning ? 'fade-out' : 'fade-in'}`} style={{
                 position: 'absolute',
                 left: '1137px',
-                top: `${595 + index * 52}px`,
+                top: `${150 + index * 60}px`,
                 fontFamily: 'Involve, sans-serif',
-                fontSize: '19px',
+                fontSize: '14px',
                 fontWeight: '400',
                 color: 'rgba(255, 255, 255, 1)',
-                lineHeight: '1.4',
+                lineHeight: '20px',
+                letterSpacing: '0.02em',
                 display: 'flex',
                 alignItems: 'center',
                 height: '30.71px'
@@ -932,27 +945,93 @@ export default function MonsterPage() {
           <div className={`content-fade fade-in`} style={{
             position: 'absolute',
             left: '1070px',
-            top: '755px',
-            width: '449px',
+            top: '340px',
+            width: '530px',
             fontFamily: 'Involve, sans-serif',
-            fontSize: '15px',
+            fontSize: '14px',
             fontWeight: '400',
             color: 'rgba(255, 255, 255, 1)',
-            lineHeight: '1.5',
+            lineHeight: '20px',
+            letterSpacing: '0.02em',
             textAlign: 'justify'
           }}>
             <span style={{ fontWeight: '600', color: '#FFFF33' }}>Правильный ответ:</span> {monster.quiz.correctAnswer}
-            <div style={{ height: '10px' }}></div>
+            <div style={{ height: '12px' }}></div>
             <span style={{ fontWeight: '600' }}>Пояснение:</span> {monster.quiz.explanation}
           </div>
         )}
+
+        {/* Таймер и счётчик */}
+        <div style={{
+          position: 'absolute',
+          left: '1100px',
+          top: '550px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '60px'
+        }}>
+          {/* Таймер круглый */}
+          <div style={{
+            width: '180px',
+            height: '180px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <svg width="180" height="180" viewBox="0 0 212 212" style={{ position: 'absolute', transform: 'rotate(-90deg)' }}>
+              {/* Белый пунктирный круг (фон) */}
+              <circle 
+                cx="106" 
+                cy="106" 
+                r="98.5"
+                fill="none"
+                stroke="white"
+                strokeWidth="15"
+                strokeDasharray="5 15"
+              />
+              {/* Желтый прогресс - заполняется по часовой со временем (10 минут = 600 сек) */}
+              <circle 
+                cx="106" 
+                cy="106" 
+                r="98.5"
+                fill="none"
+                stroke="#FFFF66"
+                strokeWidth="15"
+                strokeDasharray={`${(seconds / 600) * 618.9} 618.9`}
+                style={{ transition: 'stroke-dasharray 1s linear' }}
+              />
+            </svg>
+            {/* Текст таймера */}
+            <div style={{
+              position: 'relative',
+              zIndex: 5,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '2px'
+            }}>
+              <span style={{ fontSize: '16px', fontWeight: '400', color: 'white', fontFamily: 'Involve, sans-serif', marginBottom: '-5px' }}>Таймер</span>
+              <span style={{ fontSize: '32px', fontWeight: '700', color: 'white', fontFamily: 'Involve, sans-serif' }}>{formatTime(seconds)}</span>
+            </div>
+          </div>
+
+          {/* Счётчик правильных ответов */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '180px',
+            marginTop: '-10px'
+          }}>
+            <span style={{ fontSize: '16px', fontWeight: '400', color: 'rgba(255, 255, 255, 1)', fontFamily: 'Involve, sans-serif', marginBottom: '-8px' }}>Правильные ответы</span>
+            <span style={{ fontSize: '70px', fontWeight: '700', color: 'rgba(255, 255, 255, 1)', fontFamily: 'Involve, sans-serif', letterSpacing: '-0.05em' }}>{correctAnswers}/10</span>
+          </div>
+        </div>
       </div>
 
       <style jsx global>{`
-        * {
-          -webkit-user-drag: none;
-          user-drag: none;
-        }
         .monster-float {
           animation: float 3s ease-in-out infinite;
         }
