@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 
 // Данные промокодов с изображениями
 const promocodes = [
@@ -31,7 +32,7 @@ const ranks = [
     totalTimeMax: 480 // 8:00
   },
   {
-    name: 'Прораб средней полосы',
+    name: 'Прораб средн. полосы',
     image: '/prorab.png',
     memoryTimeMin: 151, // 2:31
     memoryTimeMax: 210, // 3:30
@@ -67,48 +68,6 @@ function calculateRank(memoryTime: number, totalTime: number, correctAnswers: nu
   return ranks[3]
 }
 
-// Карточка промокода
-function PromoCard({ image, blur = 3, opacity = 0.7 }: { image: string; blur?: number; opacity?: number }) {
-  return (
-    <div style={{
-      width: '119px',
-      height: '119px',
-      borderRadius: '20px',
-      background: 'rgba(255, 255, 255, 1)',
-      boxShadow: '6px 6px 54px rgba(0, 0, 0, 0.05)',
-      overflow: 'hidden',
-      position: 'relative',
-      flexShrink: 0
-    }}>
-      <img
-        src={image}
-        alt=""
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '120px',
-          height: 'auto',
-          filter: `blur(${blur}px)`,
-          opacity: opacity
-        }}
-      />
-      <div style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        width: '100%',
-        height: '100%',
-        background: 'rgba(255, 255, 255, 0.4)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        borderRadius: '20px'
-      }} />
-    </div>
-  )
-}
-
 // Форматирование времени
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60)
@@ -117,6 +76,9 @@ function formatTime(seconds: number): string {
 }
 
 export default function ResultPage() {
+  const router = useRouter()
+  const [isMobile, setIsMobile] = useState<boolean | null>(null)
+  const [scale, setScale] = useState(1)
   const [isSpinning, setIsSpinning] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [showPopup, setShowPopup] = useState(false)
@@ -128,10 +90,30 @@ export default function ResultPage() {
   const [correctAnswers, setCorrectAnswers] = useState(0)
   const [isHydrated, setIsHydrated] = useState(false)
 
+  // Определение мобильного устройства и масштаба
+  useEffect(() => {
+    const checkDevice = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      setIsMobile(width <= 768)
+      
+      // Вычисляем масштаб для десктопа
+      if (width > 768) {
+        const scaleX = width / 1600
+        const scaleY = height / 900
+        const newScale = Math.min(scaleX, scaleY, 1) // не увеличиваем, только уменьшаем
+        setScale(newScale)
+      }
+    }
+    checkDevice()
+    window.addEventListener('resize', checkDevice)
+    return () => window.removeEventListener('resize', checkDevice)
+  }, [])
+
   // Загрузка данных из localStorage
   useEffect(() => {
     const savedMemoryTime = localStorage.getItem('memoryTime')
-    const savedTotalTime = localStorage.getItem('monsterTimer')
+    const savedTotalTime = localStorage.getItem('totalTime')
     const savedCorrectAnswers = localStorage.getItem('correctAnswers')
     
     if (savedMemoryTime) setMemoryTime(parseInt(savedMemoryTime))
@@ -143,7 +125,7 @@ export default function ResultPage() {
 
   // Получаем текущий ранг
   const currentRank = calculateRank(memoryTime, totalTime, correctAnswers)
-  
+
   // Функция запуска прокрутки
   const startSpin = useCallback((direction: 'left' | 'right') => {
     if (isSpinning) return
@@ -186,6 +168,196 @@ export default function ResultPage() {
     spin()
   }, [isSpinning])
 
+  // Показываем загрузку пока не определили устройство
+  if (isMobile === null) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        width: '100%',
+        background: 'linear-gradient(90deg, rgba(255, 148, 73, 1) 0%, rgba(246, 81, 40, 1) 100%)'
+      }} />
+    )
+  }
+
+  // Мобильная версия
+  if (isMobile) {
+    return (
+      <div style={{
+        minHeight: '100dvh',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        background: 'linear-gradient(90deg, rgba(255, 148, 73, 1) 0%, rgba(246, 81, 40, 1) 100%)',
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        paddingTop: '20px'
+      }}>
+        {/* Изображение ранга */}
+        <div style={{
+          width: '320px',
+          height: '300px',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          flexShrink: 0,
+          paddingTop: '20px',
+          marginBottom: '-20px'
+        }}>
+          <img
+            src={currentRank.image}
+            alt={currentRank.name}
+            style={{
+              width: currentRank.image === '/brigadir.png' ? '280px' :
+                     currentRank.image === '/master.png' ? '300px' :
+                     currentRank.image === '/prorab.png' ? '260px' : '200px',
+              height: 'auto',
+              objectFit: 'contain',
+              display: 'block'
+            }}
+          />
+        </div>
+
+        {/* Белая плашка под рангом */}
+        <div style={{
+          width: '300px',
+          height: '80px',
+          borderRadius: '20px',
+          background: 'rgba(255, 255, 255, 1)',
+          boxShadow: '0px 20px 60px rgba(128, 144, 155, 0.2)',
+          padding: '12px 20px',
+          marginTop: '10px',
+          flexShrink: 0
+        }}>
+          <div style={{
+            fontSize: '14px',
+            fontWeight: '500',
+            color: 'rgba(64, 64, 64, 1)',
+            fontFamily: 'Involve, sans-serif'
+          }}>
+            твоё звание
+          </div>
+          <div style={{
+            fontSize: '20px',
+            fontWeight: '700',
+            color: 'rgba(64, 64, 64, 1)',
+            fontFamily: 'Involve, sans-serif',
+            marginTop: '4px'
+          }}>
+            {currentRank.name}
+          </div>
+        </div>
+
+        {/* Время в игре и Правильные ответы - горизонтально */}
+        <div style={{
+          width: '300px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          marginTop: '20px',
+          flexShrink: 0
+        }}>
+          {/* Время в игре */}
+          <div style={{ textAlign: 'left' }}>
+            <div style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: 'rgba(255, 255, 102, 1)',
+              fontFamily: 'Involve, sans-serif'
+            }}>
+              Время в игре
+            </div>
+            <div style={{
+              fontSize: '32px',
+              fontWeight: '700',
+              color: 'rgba(255, 255, 102, 1)',
+              fontFamily: 'Involve, sans-serif'
+            }}>
+              {formatTime(totalTime)}
+            </div>
+          </div>
+
+          {/* Правильные ответы */}
+          <div style={{ textAlign: 'right' }}>
+            <div style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: 'rgba(255, 255, 102, 1)',
+              fontFamily: 'Involve, sans-serif'
+            }}>
+              Правильные ответы
+            </div>
+            <div style={{
+              fontSize: '32px',
+              fontWeight: '700',
+              color: 'rgba(255, 255, 102, 1)',
+              fontFamily: 'Involve, sans-serif'
+            }}>
+              {correctAnswers}/10
+            </div>
+          </div>
+        </div>
+
+        {/* Текст ПОЗДРАВЛЯЕМ! */}
+        <div style={{
+          width: '300px',
+          textAlign: 'left',
+          fontSize: '36px',
+          fontWeight: '700',
+          letterSpacing: '-1px',
+          color: 'rgba(255, 255, 255, 1)',
+          fontFamily: 'Involve, sans-serif',
+          textTransform: 'uppercase',
+          marginTop: '20px',
+          flexShrink: 0
+        }}>
+          ПОЗДРАВЛЯЕМ!
+        </div>
+
+        {/* Подзаголовок */}
+        <div style={{
+          width: '300px',
+          textAlign: 'left',
+          fontSize: '13px',
+          fontWeight: '500',
+          lineHeight: '18px',
+          color: 'rgba(255, 255, 255, 1)',
+          fontFamily: 'Involve, sans-serif',
+          marginTop: '10px',
+          flexShrink: 0
+        }}>
+          Ты прошёл игру, изучил всех монстров и закрыл их досье. Теперь твой дом под защитой, а вредители знают, кто тут главный. Держи свой результат и гордись — ты это заслужил.
+        </div>
+
+        {/* Кнопка Играть снова */}
+        <div
+          onClick={() => router.push('/')}
+          style={{
+            width: '230px',
+            height: '56px',
+            borderRadius: '16px',
+            background: 'rgba(255, 255, 255, 1)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            cursor: 'pointer',
+            fontFamily: 'Involve, sans-serif',
+            fontSize: '18px',
+            fontWeight: '700',
+            color: 'rgba(246, 81, 40, 1)',
+            marginTop: '30px',
+            marginBottom: '30px',
+            flexShrink: 0,
+            transition: 'transform 0.2s ease'
+          }}
+        >
+          Играть снова
+        </div>
+      </div>
+    )
+  }
+
+  // Десктопная версия
   return (
     <div style={{
       minHeight: '100vh',
@@ -195,19 +367,23 @@ export default function ResultPage() {
       justifyContent: 'center',
       background: 'linear-gradient(90deg, rgba(255, 148, 73, 1) 0%, rgba(246, 81, 40, 1) 100%)',
       userSelect: 'none',
-      WebkitUserSelect: 'none'
+      WebkitUserSelect: 'none',
+      overflow: 'hidden'
     }}>
       <div style={{
         width: '1600px',
         height: '900px',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        transform: `scale(${scale})`,
+        transformOrigin: 'center center',
+        flexShrink: 0
       }}>
         {/* Заголовок ПОЗДРАВЛЯЕМ! */}
         <div style={{
           position: 'absolute',
           left: '137px',
-          top: '90px',
+          top: '280px',
           width: '411px',
           height: '73px',
           display: 'flex',
@@ -230,7 +406,7 @@ export default function ResultPage() {
         <div style={{
           position: 'absolute',
           left: '137px',
-          top: '198px',
+          top: '388px',
           width: '709px',
           height: '131px',
           fontSize: '25px',
@@ -239,170 +415,52 @@ export default function ResultPage() {
           lineHeight: '36.2px',
           color: 'rgba(255, 255, 255, 1)',
           textAlign: 'justify',
-          verticalAlign: 'top',
           fontFamily: 'Involve, sans-serif'
         }}>
           Ты прошёл игру, изучил всех монстров и закрыл их досье. Теперь твой дом под защитой, а вредители знают, кто тут главный. Держи свой результат и гордись — ты это заслужил.
         </div>
 
-        {/* Промокод текст */}
-        <div style={{
-          position: 'absolute',
-          left: '137px',
-          top: '380px',
-          width: '609px',
-          height: '102px',
-          fontSize: '25px',
-          fontWeight: '400',
-          letterSpacing: '0px',
-          lineHeight: '36.2px',
-          color: 'rgba(255, 255, 255, 1)',
-          textAlign: 'justify',
-          verticalAlign: 'top',
-          fontFamily: 'Involve, sans-serif'
-        }}>
-          А в награду — выбери свой <span style={{ fontWeight: '500', color: '#FFFF66' }}>ПРОМОКОД</span>: листай и забирай тот, который сделает ремонт ещё приятнее
-        </div>
-
-        {/* Кнопка Получить промокод */}
+        {/* Кнопка Играть снова */}
         <div
-          onClick={() => startSpin('right')}
+          onClick={() => {
+            localStorage.removeItem('memoryTime')
+            localStorage.removeItem('monsterTimer')
+            localStorage.removeItem('correctAnswers')
+            window.location.href = '/game'
+          }}
           style={{
             position: 'absolute',
-            left: '278px',
-            top: '695px',
-            width: '220px',
-            height: '50px',
+            left: '347px',
+            top: '580px',
+            width: '290px',
+            height: '60px',
             borderRadius: '60px',
             background: 'rgba(255, 255, 255, 1)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            cursor: isSpinning ? 'not-allowed' : 'pointer',
-            opacity: isSpinning ? 0.5 : 1,
-            transition: 'transform 0.2s ease',
-            boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
-            whiteSpace: 'nowrap'
-          }}
-          onMouseEnter={(e) => {
-            if (!isSpinning) e.currentTarget.style.transform = 'scale(1.05)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)'
-          }}
-        >
-          <span style={{
-            fontSize: '18px',
-            fontWeight: '500',
-            color: 'rgba(250, 110, 54, 1)',
-            fontFamily: 'Involve, sans-serif',
-            whiteSpace: 'nowrap'
-          }}>
-            Получить промокод
-          </span>
-        </div>
-
-        {/* Кнопка Выход */}
-        <div
-          onClick={() => window.location.href = '/'}
-          style={{
-            position: 'absolute',
-            left: '518px',
-            top: '695px',
-            width: '120px',
-            height: '50px',
-            borderRadius: '60px',
-            background: 'transparent',
-            border: '2px solid rgba(255, 255, 255, 1)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
             cursor: 'pointer',
-            transition: 'transform 0.2s ease, background 0.2s ease',
-            whiteSpace: 'nowrap'
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'scale(1.05)'
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+            e.currentTarget.style.boxShadow = '0px 6px 20px rgba(0, 0, 0, 0.15)'
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'scale(1)'
-            e.currentTarget.style.background = 'transparent'
+            e.currentTarget.style.boxShadow = '0px 4px 15px rgba(0, 0, 0, 0.1)'
           }}
         >
           <span style={{
-            fontSize: '18px',
-            fontWeight: '500',
-            color: 'rgba(255, 255, 255, 1)',
-            fontFamily: 'Involve, sans-serif',
-            whiteSpace: 'nowrap'
+            fontSize: '22px',
+            fontWeight: '600',
+            color: 'rgba(246, 81, 40, 1)',
+            fontFamily: 'Involve, sans-serif'
           }}>
-            Выход
+            Играть снова
           </span>
         </div>
-
-        {/* Стрелка влево */}
-        <img
-          src="/left.png"
-          alt="Влево"
-          onClick={() => startSpin('left')}
-          style={{
-            position: 'absolute',
-            left: '90px',
-            top: '571px',
-            width: '30px',
-            height: 'auto',
-            cursor: isSpinning ? 'not-allowed' : 'pointer',
-            opacity: isSpinning ? 0.5 : 1,
-            transition: 'transform 0.2s ease',
-            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
-            transform: 'translateY(-50%)'
-          }}
-          onMouseEnter={(e) => {
-            if (!isSpinning) e.currentTarget.style.transform = 'translateY(-50%) scale(1.15)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(-50%) scale(1)'
-          }}
-        />
-
-        {/* Контейнер с карточками */}
-        <div style={{
-          position: 'absolute',
-          left: '137px',
-          top: '512px',
-          display: 'flex',
-          gap: '12px'
-        }}>
-          {displayCards.map((image, index) => (
-            <PromoCard key={index} image={image} />
-          ))}
-        </div>
-
-        {/* Стрелка вправо */}
-        <img
-          src="/right.png"
-          alt="Вправо"
-          onClick={() => startSpin('right')}
-          style={{
-            position: 'absolute',
-            left: '790px',
-            top: '571px',
-            width: '30px',
-            height: 'auto',
-            cursor: isSpinning ? 'not-allowed' : 'pointer',
-            opacity: isSpinning ? 0.5 : 1,
-            transition: 'transform 0.2s ease',
-            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
-            transform: 'translateY(-50%)'
-          }}
-          onMouseEnter={(e) => {
-            if (!isSpinning) e.currentTarget.style.transform = 'translateY(-50%) scale(1.15)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(-50%) scale(1)'
-          }}
-        />
 
         {/* Изображение ранга */}
         {currentRank.image === '/filosof.png' ? (
@@ -573,118 +631,7 @@ export default function ResultPage() {
         }}>
           {correctAnswers}/10
         </div>
-
-        {/* Всплывающее окно */}
-        {showPopup && selectedIndex !== null && (
-          <div style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '672px',
-            height: '672px',
-            borderRadius: '55px',
-            background: 'rgba(255, 255, 255, 1)',
-            boxShadow: '0px 30px 100px rgba(0, 0, 0, 0.3)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            paddingTop: '30px',
-            zIndex: 100,
-            animation: 'popupIn 0.4s ease-out'
-          }}>
-            {/* Изображение */}
-            <img
-              src={displayCards[2]}
-              alt=""
-              style={{
-                width: '429px',
-                height: '443px',
-                objectFit: 'contain',
-                marginTop: '-20px'
-              }}
-            />
-            
-            {/* Кнопка */}
-            <button
-              onClick={() => setShowPopup(false)}
-              style={{
-                marginTop: '50px',
-                width: '453px',
-                height: '92px',
-                fontSize: '32px',
-                fontWeight: '700',
-                color: 'white',
-                background: 'rgba(33, 33, 33, 1)',
-                border: 'none',
-                borderRadius: '20px',
-                cursor: 'pointer',
-                transition: 'transform 0.2s ease, background 0.2s ease',
-                fontFamily: 'Involve, sans-serif',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.02)'
-                e.currentTarget.style.background = 'rgba(50, 50, 50, 1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)'
-                e.currentTarget.style.background = 'rgba(33, 33, 33, 1)'
-              }}
-            >
-              <span style={{ fontWeight: '700', fontSize: '32px' }}>{promocodes.find(p => p.image === displayCards[2])?.name || 'Приз'}</span>
-              <span style={{ fontWeight: '700', fontSize: '45px' }}>|</span>
-              <span style={{ fontWeight: '700', fontSize: '45px' }}>{promocodes.find(p => p.image === displayCards[2])?.percent || '10%'}</span>
-            </button>
-            
-            {/* Текст под кнопкой */}
-            <div style={{
-              marginTop: '15px',
-              fontSize: '15px',
-              fontWeight: '500',
-              color: 'rgba(163, 174, 208, 1)',
-              fontFamily: 'Involve, sans-serif',
-              textAlign: 'center'
-            }}>
-              {promocodes.find(p => p.image === displayCards[2])?.description || 'Скидка на товар'}
-            </div>
-          </div>
-        )}
-
-        {/* Затемнение фона при popup */}
-        {showPopup && (
-          <div
-            onClick={() => setShowPopup(false)}
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              width: '100%',
-              height: '100%',
-              background: 'rgba(0, 0, 0, 0.3)',
-              zIndex: 99
-            }}
-          />
-        )}
       </div>
-
-      {/* CSS анимация для popup */}
-      <style jsx global>{`
-        @keyframes popupIn {
-          from {
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.8);
-          }
-          to {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-          }
-        }
-      `}</style>
     </div>
   )
 }

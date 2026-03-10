@@ -122,9 +122,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    background: rgba(225, 98, 26, 1);
+  }
   body {
     @apply bg-background text-foreground;
     font-family: 'Roboto', sans-serif;
+    background: rgba(225, 98, 26, 1) !important;
   }
 }
 
@@ -153,4 +157,10 @@
 .monster-fade-out {
   opacity: 0;
   transform: scale(0.95);
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

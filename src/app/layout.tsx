@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Шрифт Involve - добавьте файлы в /public/fonts/ и раскомментируйте:
+// import localFont from "next/font/local";
+// const involveFont = localFont({
+//   src: [
+//     { path: "../../public/fonts/Involve-Regular.ttf", weight: "400", style: "normal" },
+//     { path: "../../public/fonts/Involve-Medium.ttf", weight: "500", style: "normal" },
+//     { path: "../../public/fonts/Involve-SemiBold.ttf", weight: "600", style: "normal" },
+//     { path: "../../public/fonts/Involve-Bold.ttf", weight: "700", style: "normal" },
+//   ],
+//   variable: "--font-involve",
+//   display: "swap",
+// });
 
 export const metadata: Metadata = {
   title: "Домашние монстры",
@@ -24,9 +26,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning style={{ background: 'rgba(225, 98, 26, 1)' }}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className="antialiased"
+        style={{ 
+          background: 'rgba(225, 98, 26, 1)', 
+          minHeight: '100vh',
+          fontFamily: 'Involve, sans-serif'
+        }}
       >
         {children}
         <Toaster />

@@ -1,9 +1,171 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 
 export default function Home() {
   const router = useRouter()
+  const [isMobile, setIsMobile] = useState<boolean | null>(null)
+  const [scale, setScale] = useState(1)
+
+  useEffect(() => {
+    const checkDevice = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      setIsMobile(width <= 768)
+      
+      // Вычисляем масштаб для десктопа
+      if (width > 768) {
+        const scaleX = width / 1600
+        const scaleY = height / 900
+        const newScale = Math.min(scaleX, scaleY, 1)
+        setScale(newScale)
+      }
+    }
+    checkDevice()
+    window.addEventListener('resize', checkDevice)
+    return () => window.removeEventListener('resize', checkDevice)
+  }, [])
+
+  // Пока не определили устройство, ничего не рендерим
+  if (isMobile === null) {
+    return null
+  }
+
+  // Мобильная версия
+  if (isMobile) {
+    return (
+      <div style={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        background: 'rgba(225, 98, 26, 1)',
+        userSelect: 'none',
+        WebkitUserSelect: 'none'
+      }}>
+        <div style={{
+          width: '100%',
+          maxWidth: '375px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '20px 16px 24px 16px',
+          boxSizing: 'border-box'
+        }}>
+          {/* Логотип megatextlogo */}
+          <div style={{
+            width: '325px',
+            height: '118px',
+            flexShrink: 0,
+            backgroundImage: 'url(/megatextlogo.png)',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            marginBottom: '5px'
+          }} />
+
+          {/* Контейнер для монстра с эллипсом */}
+          <div style={{
+            position: 'relative',
+            width: '335px',
+            height: '321px',
+            flexShrink: 0,
+            marginBottom: '12px'
+          }}>
+            {/* Эллипс с градиентом за монстром */}
+            <div style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '360px',
+              height: '360px',
+              background: 'radial-gradient(50% 50% at 50% 50%, rgba(217, 217, 217, 1) 0%, rgba(255, 255, 255, 0) 100%)',
+              pointerEvents: 'none'
+            }} />
+
+            {/* Громыхалыч */}
+            <div 
+              className="mobile-monster"
+              style={{
+              width: '335px',
+              height: '321px',
+              backgroundImage: 'url(/gromichalichmonstr4.png)',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+              transform: 'scaleX(-1)'
+            }} />
+          </div>
+
+          {/* Текст описания */}
+          <div style={{
+            width: '100%',
+            maxWidth: '328px',
+            fontFamily: 'Involve, sans-serif',
+            fontSize: '13px',
+            fontWeight: '500',
+            letterSpacing: '0px',
+            lineHeight: '20px',
+            color: 'rgba(255, 255, 255, 1)',
+            textAlign: 'justify',
+            marginBottom: '16px',
+            flexShrink: 0
+          }}>
+            Тысячи невидимых жильцов прячутся в каждой квартире. Днём они спят. А ночью скрипят половицы, капает кран, гуляет сквозняк. Это не просто случайности. Это Мега Монстры. Поймай их всех в нашей игре, узнай их имена и научись защищать свой дом.
+          </div>
+
+          {/* Кнопка войти в игру */}
+          <div 
+            onClick={() => {
+              localStorage.removeItem('correctAnswers')
+              localStorage.removeItem('monsterIndex')
+              localStorage.removeItem('answeredMonsters')
+              localStorage.removeItem('memoryTime')
+              localStorage.removeItem('monsterTimer')
+              localStorage.removeItem('totalTime')
+              router.push('/game')
+            }}
+            style={{
+              width: '288px',
+              height: '52px',
+              borderRadius: '16px',
+              background: 'linear-gradient(180.78deg, rgba(255, 255, 255, 1) 100%)',
+              border: '0.5px solid rgba(210, 206, 255, 1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+              flexShrink: 0
+            }}>
+            <span style={{
+              fontFamily: 'Involve, sans-serif',
+              fontSize: '18px',
+              fontWeight: '700',
+              color: '#F65128'
+            }}>
+              Войти в игру
+            </span>
+          </div>
+
+          {/* CSS анимации для мобильной версии */}
+          <style jsx global>{`
+            .mobile-monster {
+              animation: mobileFloat 3s ease-in-out infinite;
+            }
+            @keyframes mobileFloat {
+              0%, 100% { transform: scaleX(-1) translateY(0px); }
+              50% { transform: scaleX(-1) translateY(-15px); }
+            }
+          `}</style>
+        </div>
+      </div>
+    )
+  }
+
+  // Десктопная версия
 
   return (
     <div style={{
@@ -14,13 +176,17 @@ export default function Home() {
       justifyContent: 'center',
       background: 'rgba(225, 98, 26, 1)',
       userSelect: 'none',
-      WebkitUserSelect: 'none'
+      WebkitUserSelect: 'none',
+      overflow: 'hidden'
     }}>
       <div style={{
         width: '1600px',
         height: '900px',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        transform: `scale(${scale})`,
+        transformOrigin: 'center center',
+        flexShrink: 0
       }}>
         {/* Эллипс с радиальным градиентом по центру */}
         <div style={{
@@ -87,6 +253,9 @@ export default function Home() {
             localStorage.removeItem('correctAnswers')
             localStorage.removeItem('monsterIndex')
             localStorage.removeItem('answeredMonsters')
+            localStorage.removeItem('memoryTime')
+            localStorage.removeItem('monsterTimer')
+            localStorage.removeItem('totalTime')
             router.push('/game')
           }}
           className="enter-button"

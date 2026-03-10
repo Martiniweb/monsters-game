@@ -14,6 +14,7 @@ const monsters = [
     danger: 3,
     image: '/skripun.png',
     description: 'Обитает в старых деревянных полах и паркете. Активируется в тишине, особенно по ночам. Любит пугать домочадцев внезапными пронзительными звуками. Скрипун не опасен для жизни, но доводит до нервного тика и мешает выспаться.',
+    mobileDescription: 'Обитает в старых деревянных полах и паркете. Активируется в тишине, особенно по ночам. Любит пугать домочадцев.',
     problem: 'Скрип, дискомфорт',
     weaknesses: [
       { title: 'Клинья:', desc: 'Если забить деревянные клинья, монстр лишается подвижности.' },
@@ -40,6 +41,7 @@ const monsters = [
     danger: 8,
     image: '/plesenmonstr2.png',
     description: 'Появляется там, где сыро, темно и никто не проветривает. Любит ванные комнаты, углы промерзающих стен и места за мебелью. Опасен тем, что портит отделку и здоровье жильцов (аллергия, кашель), а пахнет так, что хоть нос зажимай.',
+    mobileDescription: 'Появляется там, где сыро, темно и никто не проветривает. Любит ванные комнаты и углы промерзающих стен.',
     problem: 'Сырость, грибок, аллергия',
     weaknesses: [
       { title: 'Грунтовка с антисептиком:', desc: 'Проникает в стены и убивает споры на корню.' },
@@ -66,6 +68,7 @@ const monsters = [
     danger: 7,
     image: '/monstr3kapalich.png',
     description: 'Селится обычно в старых смесителях, гибких шлангах или в местах соединения труб. Сначала он просто капает, отвлекая от фильмов, а потом, когда хозяева привыкают, превращает каплю в фонтан. Дружит с соседями снизу, делая им пятна на потолке.',
+    mobileDescription: 'Селится в старых смесителях и гибких шлангах. Сначала просто капает, а потом превращает каплю в фонтан.',
     problem: 'Протечки, вечно мокрый пол, соседи снизу',
     weaknesses: [
       { title: 'ФУМ-лента:', desc: 'Уплотняет резьбу, чтобы он не просочился.' },
@@ -92,6 +95,7 @@ const monsters = [
     danger: 4,
     image: '/gromichalichmonstr4.png',
     description: 'Обитает в бетонных перекрытиях и стенах панельных домов. Ему нравится, когда слышно, как сосед сверху ходит на каблуках, а сосед справа сверлит. Громыхалыч усиливает ударные шумы и передает их по всему дому, лишая жильцов покоя.',
+    mobileDescription: 'Обитает в бетонных перекрытиях панельных домов. Усиливает ударные шумы и передает их по всему дому.',
     problem: 'Плохая звукоизоляция, шум от соседей',
     weaknesses: [
       { title: 'Звукоизоляционные плиты:', desc: 'Они гасят вибрацию.' },
@@ -118,6 +122,7 @@ const monsters = [
     danger: 5,
     image: '/tresihnmonstr5.png',
     description: 'Появляется на стенах и потолке, особенно в новостройках или после спешного ремонта. Любит слабые места: стыки гипсокартона, углы дверных проемов и толстые слои штукатурки, которые плохо просохли. Портит внешний вид и навевает тоску.',
+    mobileDescription: 'Появляется на стенах и потолке в новостройках. Любит слабые места: стыки гипсокартона и углы проемов.',
     problem: 'Усадка дома, плохая штукатурка',
     weaknesses: [
       { title: 'Армирующая сетка:', desc: 'Вмурованная в шпаклевку сетка не дает трещине ползти дальше.' },
@@ -144,6 +149,7 @@ const monsters = [
     danger: 10,
     image: '/energomormonst6.png',
     description: 'Прячется в старых розетках, скрутках проводов и слабых автоматах в щитке. Любит, когда включают много мощных приборов сразу (чайник + микроволновка + обогреватель). Выбивает пробки, плавит изоляцию и может устроить пожар.',
+    mobileDescription: 'Прячется в старых розетках и слабых автоматах. Любит, когда включают много мощных приборов сразу.',
     problem: 'Короткое замыкание, скачки напряжения',
     weaknesses: [
       { title: 'Автомат. выключатели:', desc: 'Мгновенно отключают линию при перегрузке.' },
@@ -170,6 +176,7 @@ const monsters = [
     danger: 6,
     image: '/zazormonstr8.png',
     description: 'Поселяется в щелях между оконными рамами, дверными коробками и в вентиляции. Зимой он запускает холод, летом — жару и пыль с улицы. Заставляет счета за отопление расти, а жильцов — кутаться в пледы.',
+    mobileDescription: 'Поселяется в щелях между оконными рамами и дверными коробками. Зимой запускает холод, летом — жару.',
     problem: 'Щели в окнах, дверях, сквозняки, тепло/холод',
     weaknesses: [
       { title: 'Монтажная пена:', desc: 'Заполняет самые глубокие щели.' },
@@ -196,6 +203,7 @@ const monsters = [
     danger: 8,
     image: '/rijikmonstr7.8.png',
     description: 'Заводится на любых металлических поверхностях, где поцарапана краска или есть сырость. Сначала появляется рыжим пятнышком, а потом проедает трубу насквозь, устраивая потоп. Особенно любит стальные трубы и радиаторы отопления.',
+    mobileDescription: 'Заводится на металлических поверхностях, где поцарапана краска. Проедает трубу насквозь, устраивая потоп.',
     problem: 'Ржавчина на металле, трубах, радиаторах',
     weaknesses: [
       { title: 'Нейтрализатор ржавчины:', desc: 'Химия превращает рыжика в прочный грунт.' },
@@ -222,6 +230,7 @@ const monsters = [
     danger: 7,
     image: '/krivmonstr7.png',
     description: 'Вселяется в руки мастеров (или самих жильцов), когда те спешат или ленятся. В результате стены — волной, плитка торчит, плинтуса не сходятся в углах, а уровень можно сразу выкинуть. Этот монстр маскирует свою работу кучей раствора и "глаза и так не заметят".',
+    mobileDescription: 'Вселяется в руки мастеров, когда те спешат. В результате стены — волной, плитка торчит.',
     problem: 'Криво положенная плитка, неровные стены',
     weaknesses: [
       { title: 'Лазерный уровень:', desc: 'Луч правды не даст ему скрыть кривизну.' },
@@ -248,6 +257,7 @@ const monsters = [
     danger: 5,
     image: '/peresmontr10.png',
     description: 'Обитает в голове покупателя, когда тот идет в гипермаркет без списка. Подсовывает плитку не того оттенка, краску не той колеровки или заставляет купить 10 мешков смеси там, где нужен был 1.',
+    mobileDescription: 'Обитает в голове покупателя без списка. Подсовывает плитку не того оттенка или заставляет купить лишнее.',
     problem: 'Покупка лишнего и неподходящих материалов',
     weaknesses: [
       { title: 'Калькулятор расхода:', desc: 'Поможет точно посчитать материалы.' },
@@ -269,6 +279,8 @@ const monsters = [
 
 export default function MonsterPage() {
   const router = useRouter()
+  const [isMobile, setIsMobile] = useState<boolean | null>(null)
+  const [scale, setScale] = useState(1)
   const [monsterIndex, setMonsterIndex] = useState(0)
   const [animatedPercentage, setAnimatedPercentage] = useState(0)
   const [animatedDanger, setAnimatedDanger] = useState(0)
@@ -284,11 +296,31 @@ export default function MonsterPage() {
   const percentage = (monster.rarity / total) * 100
   const dangerPercentage = (monster.danger / total) * 100
 
+  // Определение мобильного устройства и масштаба
+  useEffect(() => {
+    const checkDevice = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      setIsMobile(width <= 768)
+      
+      // Вычисляем масштаб для десктопа
+      if (width > 768) {
+        const scaleX = width / 1600
+        const scaleY = height / 900
+        const newScale = Math.min(scaleX, scaleY, 1)
+        setScale(newScale)
+      }
+    }
+    checkDevice()
+    window.addEventListener('resize', checkDevice)
+    return () => window.removeEventListener('resize', checkDevice)
+  }, [])
+
   // Проверка - все ли 10 вопросов отвечены
   useEffect(() => {
     if (isHydrated && Object.keys(answeredMonsters).length === 10) {
-      // Сохраняем финальное время
-      localStorage.setItem('monsterTimer', seconds.toString())
+      // Сохраняем финальное общее время
+      localStorage.setItem('totalTime', seconds.toString())
       // Переходим на страницу результатов
       router.push('/result')
     }
@@ -296,15 +328,24 @@ export default function MonsterPage() {
 
   // Загрузка из localStorage после гидратации
   useEffect(() => {
-    const savedTime = localStorage.getItem('monsterTimer')
+    const memoryTime = localStorage.getItem('memoryTime')
+    const savedTotalTime = localStorage.getItem('totalTime')
     const savedAnswers = localStorage.getItem('correctAnswers')
     const savedIndex = localStorage.getItem('monsterIndex')
     const savedAnswered = localStorage.getItem('answeredMonsters')
     
-    if (savedTime) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSeconds(parseInt(savedTime, 10))
+    // Начинаем с времени Memory игры или сохранённого общего времени
+    let initialSeconds = 0
+    if (savedTotalTime) {
+      // Если уже были на странице монстров - продолжаем с сохранённого общего времени
+      initialSeconds = parseInt(savedTotalTime, 10)
+    } else if (memoryTime) {
+      // Иначе начинаем с времени Memory игры
+      initialSeconds = parseInt(memoryTime, 10)
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSeconds(initialSeconds)
+    
     if (savedAnswers) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCorrectAnswers(parseInt(savedAnswers, 10))
@@ -343,10 +384,10 @@ export default function MonsterPage() {
     return () => clearInterval(interval)
   }, [isHydrated])
 
-  // Сохранение времени периодически
+  // Сохранение общего времени периодически
   useEffect(() => {
     if (!isHydrated) return
-    localStorage.setItem('monsterTimer', seconds.toString())
+    localStorage.setItem('totalTime', seconds.toString())
   }, [isHydrated, seconds])
 
   const formatTime = (totalSeconds: number) => {
@@ -354,6 +395,11 @@ export default function MonsterPage() {
     const mins = Math.floor((totalSeconds % 3600) / 60)
     const secs = totalSeconds % 60
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  // Форматирование имени монстра - первая буква заглавная, остальные строчные
+  const formatName = (name: string) => {
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
   }
 
   useEffect(() => {
@@ -410,22 +456,565 @@ export default function MonsterPage() {
     }
   }
 
+  // Пока не определили устройство, ничего не рендерим
+  if (isMobile === null) {
+    return null
+  }
+
   return (
     <div style={{
       minHeight: '100vh',
       width: '100%',
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       justifyContent: 'center',
       background: 'linear-gradient(90deg, rgba(255, 148, 73, 1) 0%, rgba(246, 81, 40, 1) 100%)',
       userSelect: 'none',
-      WebkitUserSelect: 'none'
+      WebkitUserSelect: 'none',
+      overflow: 'auto'
     }}>
+      {/* Мобильная версия */}
+      {isMobile && (
+        <div style={{
+          width: '100%',
+          maxWidth: '375px',
+          minHeight: '100dvh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '16px',
+          boxSizing: 'border-box',
+          paddingBottom: '100px'
+        }}>
+          {/* Плашка с монстром */}
+          <div style={{
+            width: '330px',
+            height: '269px',
+            flexShrink: 0,
+            borderRadius: '30px',
+            background: 'linear-gradient(180deg, rgba(255, 209, 67, 1) 0%, rgba(169, 179, 77, 1) 34.6%, rgba(176, 185, 79, 1) 68.1%, rgba(119, 144, 34, 1) 100%)',
+            position: 'relative',
+            marginTop: '16px'
+          }}>
+            {/* Таймер - левый верхний угол на плашке */}
+            <div style={{
+              position: 'absolute',
+              left: '15px',
+              top: '12px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: 'rgba(255, 255, 255, 1)',
+              fontFamily: 'Involve, sans-serif',
+              zIndex: 20
+            }}>
+              {formatTime(seconds)}
+            </div>
+
+            {/* Правильные ответы - правый верхний угол на плашке */}
+            <div style={{
+              position: 'absolute',
+              right: '15px',
+              top: '12px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: 'rgba(255, 255, 255, 1)',
+              fontFamily: 'Involve, sans-serif',
+              zIndex: 20
+            }}>
+              {correctAnswers}/10
+            </div>
+
+            {/* Левая стрелка */}
+            <div style={{
+              position: 'absolute',
+              left: '15px',
+              top: '50%',
+              transform: 'translateY(-50%) scaleX(-1)',
+              width: '20px',
+              height: '32px',
+              opacity: monsterIndex === 0 ? 0.3 : 1,
+              backgroundImage: 'url(/right.png)',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              cursor: monsterIndex === 0 ? 'default' : 'pointer',
+              transition: 'transform 0.2s ease, opacity 0.2s ease',
+              zIndex: 10
+            }}
+            onClick={handlePrev}
+            />
+            
+            {/* Правая стрелка */}
+            <div style={{
+              position: 'absolute',
+              right: '15px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: '20px',
+              height: '32px',
+              opacity: monsterIndex === monsters.length - 1 ? 0.3 : 1,
+              backgroundImage: 'url(/right.png)',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              cursor: monsterIndex === monsters.length - 1 ? 'default' : 'pointer',
+              transition: 'transform 0.2s ease, opacity 0.2s ease',
+              zIndex: 10
+            }}
+            onClick={handleNext}
+            />
+            
+            {/* Изображение монстра - внутри плашки */}
+            <div className="monster-mobile-float" style={{
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              top: '0px',
+              width: '192px',
+              height: '253px',
+              opacity: 1,
+              backgroundImage: `url(${monster.image})`,
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center top',
+              pointerEvents: 'none'
+            }}>
+            </div>
+
+            {/* Редкость и Опасность - внутри плашки */}
+            <div style={{
+              position: 'absolute',
+              left: '0',
+              right: '0',
+              bottom: '15px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '40px',
+              zIndex: 10
+            }}>
+              {/* Редкость - дуга с градиентом */}
+              <div style={{
+                width: '70px',
+                height: '70px',
+                fontFamily: 'Involve, sans-serif',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative'
+              }}>
+                <svg width="70" height="70" viewBox="0 0 154 154" style={{ position: 'absolute', transform: 'rotate(90deg)' }}>
+                  <defs>
+                    <linearGradient id="mobileArcGradient" x1="100%" y1="0%" x2="0%" y2="0%">
+                      <stop offset="0%" stopColor="rgba(255, 255, 51, 1)" />
+                      <stop offset="100%" stopColor="rgba(255, 255, 51, 0.1)" />
+                    </linearGradient>
+                  </defs>
+                  <circle
+                    cx="77" cy="77" r="67"
+                    fill="none"
+                    stroke={monster.rarity === 10 ? "rgba(255, 255, 51, 1)" : "url(#mobileArcGradient)"}
+                    strokeWidth="10"
+                    strokeLinecap="round"
+                    strokeDasharray={`${(animatedPercentage / 100) * 420.97} 420.97`}
+                    style={{ transition: 'stroke-dasharray 2s ease-out' }}
+                  />
+                </svg>
+                <div style={{
+                  position: 'relative',
+                  zIndex: 1,
+                  textAlign: 'center',
+                  fontSize: '8px',
+                  fontWeight: '400',
+                  color: 'rgba(255, 255, 255, 1)',
+                  marginTop: '8px',
+                  fontFamily: 'Involve, sans-serif'
+                }}>
+                  Редкость
+                </div>
+                <div style={{
+                  position: 'relative',
+                  zIndex: 1,
+                  textAlign: 'center',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  letterSpacing: '-1px',
+                  color: 'rgba(255, 255, 255, 1)',
+                  marginTop: '-2px',
+                  fontFamily: 'Involve, sans-serif'
+                }}>
+                  {monster.rarity}/{total}
+                </div>
+              </div>
+
+              {/* Опасность - дуга с градиентом */}
+              <div style={{
+                width: '70px',
+                height: '70px',
+                fontFamily: 'Involve, sans-serif',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative'
+              }}>
+                <svg width="70" height="70" viewBox="0 0 154 154" style={{ position: 'absolute', transform: 'rotate(90deg)' }}>
+                  <defs>
+                    <linearGradient id="mobileDangerGradient" x1="100%" y1="0%" x2="0%" y2="0%">
+                      <stop offset="0%" stopColor="rgba(255, 0, 0, 1)" />
+                      <stop offset="100%" stopColor="rgba(255, 0, 0, 0.1)" />
+                    </linearGradient>
+                  </defs>
+                  <circle
+                    cx="77" cy="77" r="67"
+                    fill="none"
+                    stroke={monster.danger === 10 ? "rgba(255, 0, 0, 1)" : "url(#mobileDangerGradient)"}
+                    strokeWidth="10"
+                    strokeLinecap="round"
+                    strokeDasharray={`${(animatedDanger / 100) * 420.97} 420.97`}
+                    style={{ transition: 'stroke-dasharray 2s ease-out' }}
+                  />
+                </svg>
+                <div style={{
+                  position: 'relative',
+                  zIndex: 1,
+                  textAlign: 'center',
+                  fontSize: '8px',
+                  fontWeight: '400',
+                  color: 'rgba(255, 255, 255, 1)',
+                  marginTop: '8px',
+                  fontFamily: 'Involve, sans-serif'
+                }}>
+                  Опасность
+                </div>
+                <div style={{
+                  position: 'relative',
+                  zIndex: 1,
+                  textAlign: 'center',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  letterSpacing: '-1px',
+                  color: 'rgba(255, 255, 255, 1)',
+                  marginTop: '-2px',
+                  fontFamily: 'Involve, sans-serif'
+                }}>
+                  {monster.danger}/{total}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Две белые плашки рядом */}
+          <div style={{
+            display: 'flex',
+            gap: '6px',
+            width: '100%',
+            maxWidth: '345px',
+            marginTop: '16px',
+            marginBottom: '16px'
+          }}>
+            {/* Белая плашка с описанием */}
+            <div style={{
+              width: '163px',
+              minHeight: '201px',
+              flexShrink: 0,
+              borderRadius: '16px',
+              background: 'linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 100%)',
+              padding: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start'
+            }}>
+            {/* Название монстра */}
+            <div style={{
+              width: '100%',
+              textAlign: 'left',
+              marginBottom: '12px'
+            }}>
+              <span style={{
+                fontSize: '14px',
+                fontWeight: '700',
+                color: '#E1621A',
+                fontFamily: 'Involve, sans-serif'
+              }}>
+                {formatName(monster.nameLine1)}
+              </span>
+            </div>
+
+            {/* Заголовок Описание */}
+            <div style={{
+              fontSize: '9px',
+              fontWeight: '700',
+              color: 'rgba(64, 64, 64, 1)',
+              fontFamily: 'Involve, sans-serif',
+              width: '100%',
+              textAlign: 'left',
+              lineHeight: '12px'
+            }}>
+              Описание
+            </div>
+            {/* Текст описания */}
+            <div style={{
+              width: '100%',
+              fontSize: '7px',
+              fontWeight: '500',
+              lineHeight: '9px',
+              color: 'rgba(64, 64, 64, 1)',
+              fontFamily: 'Involve, sans-serif',
+              textAlign: 'justify',
+              marginTop: '4px'
+            }}>
+              {monster.mobileDescription || monster.description}
+            </div>
+
+            {/* Заголовок Проблема */}
+            <div style={{
+              fontSize: '9px',
+              fontWeight: '700',
+              color: 'rgba(64, 64, 64, 1)',
+              fontFamily: 'Involve, sans-serif',
+              width: '100%',
+              textAlign: 'left',
+              marginTop: '8px',
+              lineHeight: '12px'
+            }}>
+              Проблема
+            </div>
+            {/* Текст проблемы */}
+            <div style={{
+              width: '100%',
+              fontSize: '7px',
+              fontWeight: '500',
+              lineHeight: '9px',
+              color: 'rgba(64, 64, 64, 1)',
+              fontFamily: 'Involve, sans-serif',
+              textAlign: 'left',
+              marginTop: '4px'
+            }}>
+              {monster.problem}
+            </div>
+          </div>
+
+          {/* Белая плашка со слабыми сторонами */}
+          <div style={{
+            width: '163px',
+            minHeight: '201px',
+            flexShrink: 0,
+            borderRadius: '16px',
+            background: 'linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 100%)',
+            padding: '12px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start'
+          }}>
+            {/* Заголовок Слабые стороны */}
+            <div style={{
+              width: '100%',
+              marginBottom: '12px',
+              textAlign: 'left'
+            }}>
+              <span style={{
+                fontSize: '14px',
+                fontWeight: '700',
+                color: '#E1621A',
+                fontFamily: 'Involve, sans-serif'
+              }}>
+                Слабые стороны
+              </span>
+            </div>
+
+            {/* Контейнер для слабостей */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '15px',
+              width: '100%'
+            }}>
+              {/* Слабость 1 */}
+              <div>
+                <div style={{
+                  fontSize: '9px',
+                  fontWeight: '700',
+                  color: 'rgba(64, 64, 64, 1)',
+                  fontFamily: 'Involve, sans-serif',
+                  lineHeight: '12px'
+                }}>
+                  {monster.weaknesses[0].title}
+                </div>
+                <div style={{
+                  fontSize: '7px',
+                  fontWeight: '500',
+                  color: 'rgba(64, 64, 64, 1)',
+                  fontFamily: 'Involve, sans-serif',
+                  lineHeight: '9px',
+                  marginTop: '4px'
+                }}>
+                  {monster.weaknesses[0].desc}
+                </div>
+              </div>
+
+              {/* Слабость 2 */}
+              <div>
+                <div style={{
+                  fontSize: '9px',
+                  fontWeight: '700',
+                  color: 'rgba(64, 64, 64, 1)',
+                  fontFamily: 'Involve, sans-serif',
+                  lineHeight: '12px'
+                }}>
+                  {monster.weaknesses[1].title}
+                </div>
+                <div style={{
+                  fontSize: '7px',
+                  fontWeight: '500',
+                  color: 'rgba(64, 64, 64, 1)',
+                  fontFamily: 'Involve, sans-serif',
+                  lineHeight: '9px',
+                  marginTop: '4px'
+                }}>
+                  {monster.weaknesses[1].desc}
+                </div>
+              </div>
+
+              {/* Слабость 3 */}
+              <div>
+                <div style={{
+                  fontSize: '9px',
+                  fontWeight: '700',
+                  color: 'rgba(64, 64, 64, 1)',
+                  fontFamily: 'Involve, sans-serif',
+                  lineHeight: '12px'
+                }}>
+                  {monster.weaknesses[2].title}
+                </div>
+                <div style={{
+                  fontSize: '7px',
+                  fontWeight: '500',
+                  color: 'rgba(64, 64, 64, 1)',
+                  fontFamily: 'Involve, sans-serif',
+                  lineHeight: '9px',
+                  marginTop: '4px'
+                }}>
+                  {monster.weaknesses[2].desc}
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+
+          {/* Вопрос с вариантами ответов (без плашки) */}
+          <div style={{
+            width: '100%',
+            maxWidth: '345px',
+            padding: '15px'
+          }}>
+            {/* Вопрос */}
+            <div style={{
+              fontSize: '11px',
+              fontWeight: '700',
+              fontFamily: 'Involve, sans-serif',
+              color: 'rgba(255, 255, 255, 1)',
+              lineHeight: '15px',
+              marginBottom: '15px'
+            }}>
+              {monster.quiz.question}
+            </div>
+
+            {/* Варианты ответов */}
+            {monster.quiz.answers.map((answer, index) => {
+              const answerKey = String.fromCharCode(65 + index) // A, B, C
+              const isCorrect = answer.correct
+              return (
+                <div key={index} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '12px',
+                  gap: '10px'
+                }}>
+                  {/* Тумблер */}
+                  <div 
+                    onClick={() => handleAnswerSelect(answerKey, isCorrect)}
+                    style={{
+                      width: '44px',
+                      height: '24px',
+                      borderRadius: '20px',
+                      background: selectedAnswer === answerKey 
+                        ? (isCorrect ? '#FFFF33' : 'rgba(254, 146, 72, 1)') 
+                        : 'rgba(255, 255, 255, 1)',
+                      boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '2px',
+                      transition: 'background 0.2s ease',
+                      flexShrink: 0
+                    }}>
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      background: selectedAnswer === answerKey ? 'rgba(255, 255, 255, 1)' : 'rgba(254, 146, 72, 1)',
+                      boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
+                      transform: selectedAnswer === answerKey ? 'translateX(20px)' : 'translateX(0)',
+                      transition: 'transform 0.2s ease, background 0.2s ease'
+                    }}>
+                    </div>
+                  </div>
+                  
+                  {/* Текст ответа */}
+                  <div style={{
+                    fontSize: '9px',
+                    fontWeight: '400',
+                    fontFamily: 'Involve, sans-serif',
+                    color: 'rgba(255, 255, 255, 1)',
+                    lineHeight: '12px'
+                  }}>
+                    {answer.text}
+                  </div>
+                </div>
+              )
+            })}
+
+            {/* Правильный ответ */}
+            {selectedAnswer && (
+              <div style={{
+                marginTop: '10px',
+                paddingTop: '10px'
+              }}>
+                <div style={{
+                  fontSize: '10px',
+                  fontWeight: '600',
+                  fontFamily: 'Involve, sans-serif',
+                  color: '#FFFF33',
+                  marginBottom: '6px'
+                }}>
+                  Правильный ответ: {monster.quiz.correctAnswer}
+                </div>
+                <div style={{
+                  fontSize: '10px',
+                  fontWeight: '400',
+                  fontFamily: 'Involve, sans-serif',
+                  color: 'rgba(255, 255, 255, 1)',
+                  lineHeight: '13px',
+                  textAlign: 'justify'
+                }}>
+                  {monster.quiz.explanation}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Десктопная версия */}
+      {isMobile === false && (
       <div style={{
         width: '1600px',
         height: '900px',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        transform: `scale(${scale})`,
+        transformOrigin: 'center center',
+        flexShrink: 0
       }}>
         {/* Белый блок слева */}
         <div style={{
@@ -923,6 +1512,7 @@ export default function MonsterPage() {
               <div className={`content-fade ${isTransitioning ? 'fade-out' : 'fade-in'}`} style={{
                 position: 'absolute',
                 left: '1137px',
+                right: '80px',
                 top: `${150 + index * 60}px`,
                 fontFamily: 'Involve, sans-serif',
                 fontSize: '14px',
@@ -931,8 +1521,10 @@ export default function MonsterPage() {
                 lineHeight: '20px',
                 letterSpacing: '0.02em',
                 display: 'flex',
-                alignItems: 'center',
-                height: '30.71px'
+                alignItems: 'flex-start',
+                minHeight: '30.71px',
+                whiteSpace: 'normal',
+                paddingTop: '5px'
               }}>
                 {answer.text}
               </div>
@@ -945,8 +1537,8 @@ export default function MonsterPage() {
           <div className={`content-fade fade-in`} style={{
             position: 'absolute',
             left: '1070px',
+            right: '80px',
             top: '340px',
-            width: '530px',
             fontFamily: 'Involve, sans-serif',
             fontSize: '14px',
             fontWeight: '400',
@@ -1030,6 +1622,7 @@ export default function MonsterPage() {
           </div>
         </div>
       </div>
+      )}
 
       <style jsx global>{`
         .monster-float {
@@ -1038,6 +1631,14 @@ export default function MonsterPage() {
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-20px); }
+        }
+        
+        .monster-mobile-float {
+          animation: monsterMobileFloat 3s ease-in-out infinite;
+        }
+        @keyframes monsterMobileFloat {
+          0%, 100% { transform: translateX(-50%) translateY(0px); }
+          50% { transform: translateX(-50%) translateY(-10px); }
         }
         
         .hover-orange-block:hover {

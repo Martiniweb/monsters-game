@@ -8,6 +8,8 @@ function GameContent() {
   const router = useRouter()
   const skipToVictory = searchParams.get('victory') === 'true'
   
+  const [isMobile, setIsMobile] = useState(false)
+  const [scale, setScale] = useState(1)
   const [seconds, setSeconds] = useState(0)
   const [isRunning, setIsRunning] = useState(!skipToVictory)
   const [flippedCards, setFlippedCards] = useState<number[]>([])
@@ -22,6 +24,25 @@ function GameContent() {
   const [typedText, setTypedText] = useState('')
   const [typedMonsterName, setTypedMonsterName] = useState('')
   const [isTypingComplete, setIsTypingComplete] = useState(false)
+
+  useEffect(() => {
+    const checkDevice = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      setIsMobile(width <= 768)
+      
+      // Вычисляем масштаб для десктопа
+      if (width > 768) {
+        const scaleX = width / 1600
+        const scaleY = height / 900
+        const newScale = Math.min(scaleX, scaleY, 1)
+        setScale(newScale)
+      }
+    }
+    checkDevice()
+    window.addEventListener('resize', checkDevice)
+    return () => window.removeEventListener('resize', checkDevice)
+  }, [])
 
   // Имена монстров для сообщения
   const monsterNames: { [key: number]: string } = {
@@ -158,181 +179,542 @@ function GameContent() {
     }
   }, [defeatedMonster])
 
-  return (
-    <div style={{ minHeight: '100vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(225, 98, 26, 1)', userSelect: 'none', WebkitUserSelect: 'none' }}>
-      <div style={{ width: '1600px', height: '900px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', left: '130px', top: '0px', width: '352px', height: '132px', backgroundImage: 'url(/logo.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }} />
-
-        <div style={{ position: 'absolute', left: '130px', top: '150px', color: 'white' }}>
-          <h1 style={{ fontSize: '28pt', fontWeight: '700', lineHeight: '1.2', margin: 0, textTransform: 'uppercase', fontFamily: 'Involve, sans-serif' }}>
-            Найдите парные<br />карточки на скорость
-          </h1>
-          <p style={{ fontSize: '16pt', fontWeight: '400', lineHeight: '1.4', marginTop: '15px', maxWidth: '600px', fontFamily: 'Involve, sans-serif' }}>
-            Приручите домашних монстров! Соберите все пары,<br />
-            ответьте на вопросы и узнайте, как победить
-          </p>
-        </div>
-
-        {showObez && false && (
-          <div className={`obez-card obez-${obezAnimation}`} style={{ position: 'absolute', left: '540px', bottom: '100px', width: '240px', height: '335px', zIndex: 5, backgroundImage: `url(/obez${showObez}.png)`, backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }} />
-        )}
-
-        <div className="sbornik-hover" style={{ position: 'absolute', left: '80px', bottom: '-120px', width: '500px', height: '675px', zIndex: 10, backgroundImage: 'url(/sbornik.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }} />
-
-        {/* Таймер круглый */}
+  // Мобильная версия
+  if (isMobile) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(225, 98, 26, 1)',
+        userSelect: 'none',
+        WebkitUserSelect: 'none'
+      }}>
         <div style={{
-          position: 'absolute',
-          left: '600px',
-          top: '400px',
-          width: '212px',
-          height: '212px',
-          zIndex: 20,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
+          width: '375px',
+          height: '812px',
+          position: 'relative',
+          overflow: 'hidden',
+          background: 'rgba(225, 98, 26, 1)'
         }}>
-          <svg width="212" height="212" viewBox="0 0 212 212" style={{ position: 'absolute', transform: 'rotate(-90deg)' }}>
-            {/* Белый пунктирный круг (фон) */}
-            <circle 
-              cx="106" 
-              cy="106" 
-              r="98.5"
-              fill="none"
-              stroke="white"
-              strokeWidth="15"
-              strokeDasharray="5 15"
-            />
-            {/* Желтый прогресс - заполняется по часовой со временем (10 минут = 600 сек) */}
-            <circle 
-              cx="106" 
-              cy="106" 
-              r="98.5"
-              fill="none"
-              stroke="#FFFF66"
-              strokeWidth="15"
-              strokeDasharray={`${(seconds / 600) * 618.9} 618.9`}
-              style={{ transition: 'stroke-dasharray 1s linear' }}
-            />
-          </svg>
-          {/* Текст таймера */}
+          {/* Заголовок */}
           <div style={{
-            position: 'relative',
-            zIndex: 5,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '2px'
-          }}>
-            <span style={{ fontSize: '20px', fontWeight: '400', color: 'white', fontFamily: 'Involve, sans-serif', marginBottom: '-5px' }}>Таймер</span>
-            <span style={{ fontSize: '38px', fontWeight: '700', color: 'white', fontFamily: 'Involve, sans-serif' }}>{formatTime(seconds)}</span>
-          </div>
-        </div>
-
-        {/* Счетчик найденных монстров */}
-        <div style={{
-          position: 'absolute',
-          left: '600px',
-          top: '620px',
-          width: '212px',
-          zIndex: 25,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}>
-          <span style={{ 
-            fontSize: '90px', 
-            fontWeight: '700', 
-            color: 'white', 
+            position: 'absolute',
+            left: 'calc(50% - 158px)',
+            top: '12px',
+            width: '325px',
             fontFamily: 'Involve, sans-serif',
-            letterSpacing: '-0.06em',
-            transition: 'opacity 0.3s ease'
+            fontSize: '20px',
+            fontWeight: '700',
+            letterSpacing: '0px',
+            lineHeight: '24px',
+            color: 'rgba(255, 255, 255, 1)',
+            textTransform: 'uppercase'
           }}>
-            {matchedPairs.length}/10
-          </span>
-          
-          {/* Сообщение об обезвреживании */}
-          {defeatedMonster && matchedPairs.length > 0 && (
+            Найдите парные<br />карточки на скорость
+          </div>
+
+          {/* Подзаголовок */}
+          <div style={{
+            position: 'absolute',
+            left: 'calc(50% - 158px)',
+            top: '65px',
+            width: '296px',
+            fontFamily: 'Involve, sans-serif',
+            fontSize: '12px',
+            fontWeight: '300',
+            letterSpacing: '0px',
+            lineHeight: '15px',
+            color: 'rgba(255, 255, 255, 1)'
+          }}>
+            Приручите домашних монстров!<br />
+            Соберите все пары, ответьте на вопросы<br />
+            и узнайте как победить их.
+          </div>
+
+          {/* Карточки Memory */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            top: '135px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 70px)',
+            gridTemplateRows: 'repeat(5, 98px)',
+            columnGap: '12px',
+            rowGap: '8px'
+          }}>
+            {cardMonsters.length > 0 && [...Array(20)].map((_, index) => {
+              const isFlipped = flippedCards.includes(index)
+              const isMatched = matchedPairs.includes(cardMonsters[index])
+              const isDisappearing = disappearingCards.includes(index)
+              const monsterNum = cardMonsters[index]
+              if (isMatched && !isDisappearing) return null
+              return (
+                <div 
+                  key={index} 
+                  onClick={() => toggleCard(index)} 
+                  className={`memory-card ${isDisappearing ? 'disappearing' : ''}`} 
+                  style={{ 
+                    width: '70px', 
+                    height: '98px', 
+                    borderRadius: '8px', 
+                    cursor: isDisappearing ? 'default' : 'pointer', 
+                    perspective: '1000px' 
+                  }}
+                >
+                  <div style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    position: 'relative', 
+                    transition: 'transform 0.6s', 
+                    transformStyle: 'preserve-3d', 
+                    transform: isFlipped || isDisappearing ? 'rotateY(180deg)' : 'rotateY(0deg)' 
+                  }}>
+                    <div style={{ 
+                      position: 'absolute', 
+                      width: '100%', 
+                      height: '100%', 
+                      backfaceVisibility: 'hidden', 
+                      borderRadius: '8px', 
+                      backgroundImage: 'url(/card_back.png)', 
+                      backgroundSize: 'cover' 
+                    }} />
+                    <div style={{ 
+                      position: 'absolute', 
+                      width: '100%', 
+                      height: '100%', 
+                      backfaceVisibility: 'hidden', 
+                      transform: 'rotateY(180deg)', 
+                      borderRadius: '8px', 
+                      backgroundImage: `url(/monster_${monsterNum.toString().padStart(2, '0')}.png)`, 
+                      backgroundSize: 'cover' 
+                    }} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Панель с таймером и счетчиком */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            bottom: `${10 + (matchedPairs.length * 30)}px`,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '15px',
+            transition: 'bottom 0.5s ease-out'
+          }}>
+            {/* Таймер круглый */}
+            <div style={{
+              width: '100px',
+              height: '100px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexShrink: 0
+            }}>
+              <svg width="100" height="100" viewBox="0 0 212 212" style={{ position: 'absolute', transform: 'rotate(-90deg)' }}>
+                <circle 
+                  cx="106" 
+                  cy="106" 
+                  r="98.5"
+                  fill="none"
+                  stroke="rgba(255, 255, 255, 0.3)"
+                  strokeWidth="15"
+                  strokeDasharray="5 15"
+                />
+                <circle 
+                  cx="106" 
+                  cy="106" 
+                  r="98.5"
+                  fill="none"
+                  stroke="#FFFF66"
+                  strokeWidth="15"
+                  strokeDasharray={`${(seconds / 600) * 618.9} 618.9`}
+                  style={{ transition: 'stroke-dasharray 1s linear' }}
+                />
+              </svg>
+              <div style={{
+                position: 'relative',
+                zIndex: 5,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <span style={{ fontSize: '11px', fontWeight: '400', color: 'white', fontFamily: 'Involve, sans-serif' }}>Таймер</span>
+                <span style={{ fontSize: '18px', fontWeight: '700', color: 'white', fontFamily: 'Involve, sans-serif' }}>{formatTime(seconds)}</span>
+              </div>
+            </div>
+
+            {/* Счетчик и сообщение */}
             <div style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'flex-start',
-              marginTop: '10px',
-              transition: 'opacity 0.5s ease'
+              justifyContent: 'center'
             }}>
-              <span style={{
-                fontSize: '16px',
-                fontWeight: '500',
-                color: 'white',
+              <span style={{ 
+                fontSize: '48px', 
+                fontWeight: '700', 
+                color: 'white', 
                 fontFamily: 'Involve, sans-serif',
-                lineHeight: 1,
-                letterSpacing: '0.02em'
+                letterSpacing: '-0.06em',
+                lineHeight: 1
               }}>
-                {typedText}{typedText.length < 14 && <span style={{ opacity: 0.8 }}>|</span>}
+                {matchedPairs.length}/10
               </span>
-              <span style={{
-                fontSize: '32px',
-                fontWeight: '700',
-                color: 'white',
-                fontFamily: 'Involve, sans-serif',
-                lineHeight: 1.1,
-                letterSpacing: '0.02em',
-                minHeight: '35px'
-              }}>
-                {typedMonsterName}{typedMonsterName.length > 0 && typedMonsterName.length < monsterNames[defeatedMonster].length && <span style={{ opacity: 0.7 }}>|</span>}
-              </span>
+              
+              {defeatedMonster && matchedPairs.length > 0 && (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  marginTop: '5px'
+                }}>
+                  <span style={{
+                    fontSize: '11px',
+                    fontWeight: '500',
+                    color: 'white',
+                    fontFamily: 'Involve, sans-serif',
+                    lineHeight: 1
+                  }}>
+                    {typedText}
+                  </span>
+                  <span style={{
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    color: 'white',
+                    fontFamily: 'Involve, sans-serif',
+                    lineHeight: 1.1
+                  }}>
+                    {typedMonsterName}
+                  </span>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
-        <div style={{ position: 'absolute', left: '200px', bottom: '140px', width: '250px', height: '280px', zIndex: 15 }}>
-          {matchedPairs.map((monsterNum, index) => {
-            const rotations = [-20, 12, -8, 18, -14, 10, -16, 14, -6, 20]
-            const rotation = rotations[index % 10]
-            const offsetX = (index % 3 === 0) ? -15 : (index % 3 === 1) ? 8 : -5
-            const offsetY = index * -5
-            return (
-              <div key={`matched-${monsterNum}-${index}`} className="matched-card-hover" style={{ position: 'absolute', width: '220px', height: '300px', left: `${10 + offsetX}px`, top: `${20 + offsetY}px`, transform: `rotate(${rotation}deg)`, zIndex: index + 1, borderRadius: '12px', backgroundImage: `url(/monster_${monsterNum.toString().padStart(2, '0')}.png)`, backgroundSize: 'cover', transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }} />
-            )
-          })}
-        </div>
+        {/* Victory Screen для мобильной версии */}
+        {showVictory && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(225, 98, 26, 1)',
+            zIndex: 200,
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            overflow: 'auto',
+            paddingTop: 'env(safe-area-inset-top)',
+            paddingBottom: 'env(safe-area-inset-bottom)',
+            animation: 'fadeIn 0.5s ease-out forwards'
+          }}>
+            <div style={{
+              width: '100%',
+              maxWidth: '375px',
+              minHeight: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '24px 16px 30px 16px',
+              boxSizing: 'border-box'
+            }}>
+              {/* Изображение mobnaideni */}
+              <div style={{
+                width: '375px',
+                height: '445px',
+                flexShrink: 0,
+                backgroundImage: 'url(/mobnaideni.png)',
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center top',
+                marginBottom: '25px'
+              }} />
 
-        <div style={{ position: 'absolute', right: '20px', top: '80px', display: 'grid', gridTemplateColumns: 'repeat(5, 137px)', gridTemplateRows: 'repeat(4, 191px)', gap: '10px' }}>
-          {cardMonsters.length > 0 && [...Array(20)].map((_, index) => {
-            const isFlipped = flippedCards.includes(index)
-            const isMatched = matchedPairs.includes(cardMonsters[index])
-            const isDisappearing = disappearingCards.includes(index)
-            const monsterNum = cardMonsters[index]
-            if (isMatched && !isDisappearing) return null
-            return (
-              <div key={index} onClick={() => toggleCard(index)} className={`memory-card ${isDisappearing ? 'disappearing' : ''}`} style={{ width: '137px', height: '191px', borderRadius: '12px', cursor: isDisappearing ? 'default' : 'pointer', perspective: '1000px' }}>
-                <div style={{ width: '100%', height: '100%', position: 'relative', transition: 'transform 0.6s', transformStyle: 'preserve-3d', transform: isFlipped || isDisappearing ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
-                  <div style={{ position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden', borderRadius: '12px', backgroundImage: 'url(/card_back.png)', backgroundSize: 'cover' }} />
-                  <div style={{ position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', borderRadius: '12px', backgroundImage: `url(/monster_${monsterNum.toString().padStart(2, '0')}.png)`, backgroundSize: 'cover' }} />
+              {/* Контейнер с текстами */}
+              <div style={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                gap: '20px',
+                marginBottom: '24px'
+              }}>
+                {/* Текст "Отличная работа" */}
+                <div style={{
+                  fontFamily: 'Involve, sans-serif',
+                  fontSize: '15px',
+                  fontWeight: '500',
+                  letterSpacing: '0px',
+                  lineHeight: '21.72px',
+                  color: 'rgba(255, 255, 255, 1)',
+                  textAlign: 'left'
+                }}>
+                  Отличная работа!
+                </div>
+
+                {/* Текст "Все монстры пойманы" */}
+                <div style={{
+                  fontFamily: 'Involve, sans-serif',
+                  fontSize: '45px',
+                  fontWeight: '500',
+                  letterSpacing: '-1.35px',
+                  lineHeight: '42.75px',
+                  color: 'rgba(255, 255, 255, 1)',
+                  textAlign: 'left'
+                }}>
+                  Все монстры пойманы
+                </div>
+
+                {/* Описание */}
+                <div style={{
+                  fontFamily: 'Involve, sans-serif',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  letterSpacing: '-0.13px',
+                  lineHeight: '18.2px',
+                  color: 'rgba(255, 255, 255, 1)',
+                  textAlign: 'justify'
+                }}>
+                  Вы собрали все пары и обезвредили вредителей. Но это только начало — у каждого из них есть секретное досье.
                 </div>
               </div>
-            )
-          })}
-        </div>
+
+              {/* Кнопка продолжить */}
+              <div
+                onClick={() => {
+                  localStorage.setItem('memoryTime', seconds.toString())
+                  router.push('/monster')
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.2)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
+                style={{
+                  width: '250px',
+                  height: '52px',
+                  borderRadius: '16px',
+                  background: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  fontWeight: '700',
+                  color: 'rgba(246, 81, 40, 1)',
+                  fontFamily: 'Involve, sans-serif',
+                  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                  flexShrink: 0
+                }}>
+                Просмотреть досье
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Десктопная версия
+  return (
+    <div style={{ minHeight: '100vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(225, 98, 26, 1)', userSelect: 'none', WebkitUserSelect: 'none', overflow: 'hidden' }}>
+      <div style={{ width: '1600px', height: '900px', position: 'relative', overflow: 'hidden', transform: `scale(${scale})`, transformOrigin: 'center center', flexShrink: 0 }}>
+        
+        {/* Игровой контент - скрываем при victory */}
+        {!showVictory && (
+          <>
+            {/* Логотип отключён */}
+            {/* <div style={{ position: 'absolute', left: '130px', top: '0px', width: '352px', height: '132px', backgroundImage: 'url(/logo.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }} /> */}
+
+            <div style={{ position: 'absolute', left: '130px', top: '80px', color: 'white' }}>
+              <h1 style={{ fontSize: '28pt', fontWeight: '700', lineHeight: '1.2', margin: 0, textTransform: 'uppercase', fontFamily: 'Involve, sans-serif' }}>
+                Найдите парные<br />карточки на скорость
+              </h1>
+              <p style={{ fontSize: '16pt', fontWeight: '400', lineHeight: '1.4', marginTop: '15px', maxWidth: '600px', fontFamily: 'Involve, sans-serif' }}>
+                Приручите домашних монстров! Соберите все пары,<br />
+                ответьте на вопросы и узнайте, как победить
+              </p>
+            </div>
+
+            {showObez && false && (
+              <div className={`obez-card obez-${obezAnimation}`} style={{ position: 'absolute', left: '540px', bottom: '100px', width: '240px', height: '335px', zIndex: 5, backgroundImage: `url(/obez${showObez}.png)`, backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }} />
+            )}
+
+            <div className="sbornik-hover" style={{ position: 'absolute', left: '80px', bottom: '-120px', width: '500px', height: '675px', zIndex: 10, backgroundImage: 'url(/sbornikbezlogo.png)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), filter 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+
+            {/* Таймер круглый */}
+            <div style={{
+              position: 'absolute',
+              left: '600px',
+              top: '400px',
+              width: '212px',
+              height: '212px',
+              zIndex: 20,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
+              <svg width="212" height="212" viewBox="0 0 212 212" style={{ position: 'absolute', transform: 'rotate(-90deg)' }}>
+                {/* Белый пунктирный круг (фон) */}
+                <circle 
+                  cx="106" 
+                  cy="106" 
+                  r="98.5"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="15"
+                  strokeDasharray="5 15"
+                />
+                {/* Желтый прогресс - заполняется по часовой со временем (10 минут = 600 сек) */}
+                <circle 
+                  cx="106" 
+                  cy="106" 
+                  r="98.5"
+                  fill="none"
+                  stroke="#FFFF66"
+                  strokeWidth="15"
+                  strokeDasharray={`${(seconds / 600) * 618.9} 618.9`}
+                  style={{ transition: 'stroke-dasharray 1s linear' }}
+                />
+              </svg>
+              {/* Текст таймера */}
+              <div style={{
+                position: 'relative',
+                zIndex: 5,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '2px'
+              }}>
+                <span style={{ fontSize: '20px', fontWeight: '400', color: 'white', fontFamily: 'Involve, sans-serif', marginBottom: '-5px' }}>Таймер</span>
+                <span style={{ fontSize: '38px', fontWeight: '700', color: 'white', fontFamily: 'Involve, sans-serif' }}>{formatTime(seconds)}</span>
+              </div>
+            </div>
+
+            {/* Счетчик найденных монстров */}
+            <div style={{
+              position: 'absolute',
+              left: '600px',
+              top: '620px',
+              width: '212px',
+              zIndex: 25,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}>
+              <span style={{ 
+                fontSize: '90px', 
+                fontWeight: '700', 
+                color: 'white', 
+                fontFamily: 'Involve, sans-serif',
+                letterSpacing: '-0.06em',
+                transition: 'opacity 0.3s ease'
+              }}>
+                {matchedPairs.length}/10
+              </span>
+              
+              {/* Сообщение об обезвреживании */}
+              {defeatedMonster && matchedPairs.length > 0 && (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  marginTop: '10px',
+                  transition: 'opacity 0.5s ease'
+                }}>
+                  <span style={{
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    color: 'white',
+                    fontFamily: 'Involve, sans-serif',
+                    lineHeight: 1,
+                    letterSpacing: '0.02em'
+                  }}>
+                    {typedText}{typedText.length < 14 && <span style={{ opacity: 0.8 }}>|</span>}
+                  </span>
+                  <span style={{
+                    fontSize: '32px',
+                    fontWeight: '700',
+                    color: 'white',
+                    fontFamily: 'Involve, sans-serif',
+                    lineHeight: 1.1,
+                    letterSpacing: '0.02em',
+                    minHeight: '35px'
+                  }}>
+                    {typedMonsterName}{typedMonsterName.length > 0 && typedMonsterName.length < monsterNames[defeatedMonster].length && <span style={{ opacity: 0.7 }}>|</span>}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div style={{ position: 'absolute', left: '200px', bottom: '140px', width: '250px', height: '280px', zIndex: 15 }}>
+              {matchedPairs.map((monsterNum, index) => {
+                const rotations = [-20, 12, -8, 18, -14, 10, -16, 14, -6, 20]
+                const rotation = rotations[index % 10]
+                const offsetX = (index % 3 === 0) ? -15 : (index % 3 === 1) ? 8 : -5
+                const offsetY = index * -5
+                return (
+                  <div key={`matched-${monsterNum}-${index}`} className="matched-card-hover" style={{ position: 'absolute', width: '220px', height: '300px', left: `${10 + offsetX}px`, top: `${20 + offsetY}px`, transform: `rotate(${rotation}deg)`, zIndex: index + 1, borderRadius: '12px', backgroundImage: `url(/monster_${monsterNum.toString().padStart(2, '0')}.png)`, backgroundSize: 'cover', transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+                )
+              })}
+            </div>
+
+            <div style={{ position: 'absolute', right: '20px', top: '80px', display: 'grid', gridTemplateColumns: 'repeat(5, 137px)', gridTemplateRows: 'repeat(4, 191px)', gap: '10px' }}>
+              {cardMonsters.length > 0 && [...Array(20)].map((_, index) => {
+                const isFlipped = flippedCards.includes(index)
+                const isMatched = matchedPairs.includes(cardMonsters[index])
+                const isDisappearing = disappearingCards.includes(index)
+                const monsterNum = cardMonsters[index]
+                if (isMatched && !isDisappearing) return null
+                return (
+                  <div key={index} onClick={() => toggleCard(index)} className={`memory-card ${isDisappearing ? 'disappearing' : ''}`} style={{ width: '137px', height: '191px', borderRadius: '12px', cursor: isDisappearing ? 'default' : 'pointer', perspective: '1000px' }}>
+                    <div style={{ width: '100%', height: '100%', position: 'relative', transition: 'transform 0.6s', transformStyle: 'preserve-3d', transform: isFlipped || isDisappearing ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
+                      <div style={{ position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden', borderRadius: '12px', backgroundImage: 'url(/card_back.png)', backgroundSize: 'cover' }} />
+                      <div style={{ position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', borderRadius: '12px', backgroundImage: `url(/monster_${monsterNum.toString().padStart(2, '0')}.png)`, backgroundSize: 'cover' }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </>
+        )}
 
         {showVictory && (
-          <div className="victory-screen">
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '1600px',
+            height: '900px',
+            background: 'rgba(225, 98, 26, 1)',
+            zIndex: 200,
+            animation: 'victoryAppear 0.5s ease-out forwards'
+          }}>
             <div className="papki-hover" style={{
               position: 'absolute',
               left: '50%',
-              top: '36%',
+              top: '30%',
               transform: 'translate(-50%, -50%)',
               width: '1560px',
-              height: '610px',
+              height: '500px',
               backgroundImage: 'url(/papki.png)',
               backgroundSize: 'contain',
               backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
               transition: 'transform 0.5s ease, filter 0.5s ease'
             }} />
             <div style={{
               position: 'absolute',
-              left: '390px',
-              top: '616px',
+              left: '400px',
+              top: '580px',
               textAlign: 'left'
             }}>
               <div style={{
@@ -346,7 +728,7 @@ function GameContent() {
                 Отличная работа!
               </div>
               <div style={{
-                fontSize: '96px',
+                fontSize: '80px',
                 fontWeight: '500',
                 letterSpacing: '-0.03em',
                 color: 'rgba(255, 255, 255, 1)',
@@ -356,7 +738,7 @@ function GameContent() {
                 Все монстры пойманы
               </div>
               <div style={{
-                fontSize: '28px',
+                fontSize: '24px',
                 fontWeight: '500',
                 letterSpacing: '-0.03em',
                 lineHeight: '1.295',
@@ -371,13 +753,13 @@ function GameContent() {
             </div>
             <div
               onClick={() => {
-                localStorage.setItem('monsterTimer', seconds.toString())
+                localStorage.setItem('memoryTime', seconds.toString())
                 router.push('/monster')
               }}
               style={{
                 position: 'absolute',
                 left: '1180px',
-                top: '815px',
+                top: '775px',
                 width: '246px',
                 height: '62px',
                 borderRadius: '16px',
@@ -440,6 +822,16 @@ function GameContent() {
           }
           .papki-hover { cursor: pointer; }
           .papki-hover:hover { transform: translate(-50%, -50%) scale(1.02); filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.3)); }
+          .mobile-victory-screen {
+            animation: victoryAppear 0.5s ease-out forwards;
+          }
+          .mobile-victory-button:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+          }
+          .mobile-victory-button:active {
+            transform: translateX(-50%) scale(0.98);
+          }
         `}</style>
       </div>
     </div>
